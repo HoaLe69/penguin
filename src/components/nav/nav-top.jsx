@@ -26,6 +26,7 @@ import axiosClient from '../../config/axios'
 import { useSelector } from 'react-redux'
 import useClickOutside from '../../hooks/useClickOutside'
 import { refreshEvents } from '../../hooks/useRefreshable'
+import { useLocation } from 'react-router-dom'
 
 const PopResult = ({ result, isOpen, setVisibleResult, userLoginId }) => {
   const refContainer = useRef(null)
@@ -90,6 +91,7 @@ const NavTop = ({ isFixed }) => {
   const [visibleResult, setVisibleResult] = useState(false)
   const debounceValue = useDebounce(search)
   const userLogin = useSelector(state => state.auth.authState.user)
+  const { pathname } = useLocation()
 
   useEffect(() => {
     if (!debounceValue.trim()) {
@@ -121,6 +123,7 @@ const NavTop = ({ isFixed }) => {
 
   const bgLoadingPost = useColorModeValue('#f0e7db', '#202023')
   const handleRefreshPost = useCallback(async () => {
+    if (pathname !== '/') return
     setRefreshsing(true)
     await new Promise(resolve => setTimeout(resolve, 2000))
     setRefreshsing(false)

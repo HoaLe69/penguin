@@ -8,11 +8,11 @@ export const useStompClient = (topic, id, onMessageReceived) => {
 
   useEffect(() => {
     if (!id) return
-    const socket = new SockJS('https://funapp-f9eee3dvaxgjh8hy.southeastasia-01.azurewebsites.net/ws')
+    const socket = new SockJS(`${process.env.REACT_APP_SOCKET_URL}`)
     const stompClient = Stomp.over(socket)
 
     // disable console debug logs if not needed
-    //    stompClient.debug = null
+    //stompClient.debug = null
 
     stompClient.connect(
       {},

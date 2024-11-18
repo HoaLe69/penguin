@@ -1,41 +1,19 @@
-import {
-  Box,
-  Text,
-  Link,
-  Image,
-  Avatar,
-  Heading,
-  HStack,
-  Flex,
-  Badge,
-  useColorModeValue,
-  useDisclosure
-} from '@chakra-ui/react'
+import { Box, Text, Link, Image, Avatar, Heading, HStack, Flex, Badge, useColorModeValue } from '@chakra-ui/react'
 import { Link as ReactRouterLink } from 'react-router-dom'
 import MenuPost from '../menu-post'
 import { AiOutlineHeart, AiFillHeart, AiOutlineMessage } from 'react-icons/ai'
 import { useDispatch, useSelector } from 'react-redux'
-import { getCurrentPostInfor } from '@redux/postSlice'
-import FeedModal from '../modals/feed'
-import { reactPost } from '@redux/api-request/posts'
-import { forwardRef, useState, memo, useRef, useEffect, useCallback } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import formatTime from '../../util/timeago'
 import { deletePost } from '../../redux/api-request/posts'
-import { useToast } from '@chakra-ui/react'
 
-const Post = forwardRef((props, ref) => {
-  const { isFullPost, ...postInfo } = props
-  const toast = useToast()
-
+const Post = props => {
+  const { isModal, activeReactButton, handleShowPostModal, handleReactPost, postReactionList, ...postInfo } = props
   const userLogin = useSelector(state => state.auth.authState.user)
   const [numberOfLines, setNumberOfLines] = useState(0)
   // paragraph ref
   const pRef = useRef()
-  const { isOpen, onClose, onOpen } = useDisclosure()
-  const [activeEmojiButton, setActiveEmojiButton] = useState(() =>
-    postInfo.like ? postInfo.like?.includes(userLogin?.id) : false
-  )
-  const [liked, setLiked] = useState(postInfo.like || [])
+  //  const { isOpen, onClose, onOpen } = useDisclosure()
   const dispatch = useDispatch()
 
   const colorReact = useColorModeValue('#1a202c', '#ffffff')
@@ -52,47 +30,12 @@ const Post = forwardRef((props, ref) => {
     }
   }, [])
 
-  const showRectPost = useCallback(() => {
-    const quantity = liked?.length
-    if (quantity === 0) return '0'
-    else {
-      if (quantity === 1 && activeEmojiButton) return 'you'
-      else if (activeEmojiButton) return `you and ${quantity - 1} other`
-      return `${quantity} other`
-    }
-  }, [liked])
-
-  const handleOnClickLike = async () => {
-    try {
-      await reactPost(postInfo.id, userLogin?.id)
-      if (activeEmojiButton) {
-        setLiked([...liked].filter(likerId => likerId !== userLogin?.id))
-      } else setLiked([...liked, userLogin?.id])
-      setActiveEmojiButton(!activeEmojiButton)
-    } catch (error) {
-      console.log(error)
-      toast({
-        title: 'Post',
-        position: 'bottom-left',
-        description: error.response.data || 'Something went wrong',
-        status: 'info',
-        duration: 1500,
-        isClosable: true
-      })
-    }
-  }
-  const handleShowFullPost = () => {
-    dispatch(
-      getCurrentPostInfor({
-        ...postInfo,
-        like: liked
-      })
-    )
-  }
+  const displayPostReaction = useCallback(() => {
+    return postReactionList?.length
+  }, [postReactionList])
 
   const handleReadMorePost = () => {
-    handleShowFullPost()
-    onOpen()
+    handleShowPostModal()
   }
 
   const handleDeletePost = useCallback(() => {
@@ -100,7 +43,7 @@ const Post = forwardRef((props, ref) => {
   }, [])
 
   return (
-    <Box mb={4} ref={ref} bg={isFullPost ? 'none' : bgPost} rounded="10px">
+    <Box mb={4} bg={isModal ? 'none' : bgPost} rounded="10px">
       <HStack as="header" p={2} display="flex">
         <Link
           as={ReactRouterLink}
@@ -127,11 +70,11 @@ const Post = forwardRef((props, ref) => {
         )}
       </HStack>
       <Box pl={2}>
-        <Text ref={pRef} textAlign="left" noOfLines={numberOfLines >= 3 && !isFullPost ? '3' : 'none'}>
+        <Text ref={pRef} textAlign="left" noOfLines={numberOfLines >= 3 && !isModal ? '3' : 'none'}>
           {postInfo.description}
         </Text>
       </Box>
-      <Box display={numberOfLines >= 3 && !isFullPost ? 'block' : 'none'} textAlign="left" pl={2}>
+      <Box display={numberOfLines >= 3 && !isModal ? 'block' : 'none'} textAlign="left" pl={2}>
         <Text
           onClick={handleReadMorePost}
           cursor="pointer"
@@ -169,7 +112,7 @@ const Post = forwardRef((props, ref) => {
           <Box fontSize="12px" p={1} color="white" bg="pink.400" rounded="full">
             <AiFillHeart />
           </Box>
-          <Text lineHeight={1}>{showRectPost()}</Text>
+          <Text lineHeight={1}>{displayPostReaction()}</Text>
         </Box>
         <Box>
           <Text>{amountOfComment || postInfo.comments} comments</Text>
@@ -192,17 +135,17 @@ const Post = forwardRef((props, ref) => {
           rounded="5px"
           _hover={{ bg: useColorModeValue('whiteAlpha.500', 'whiteAlpha.200') }}
           cursor="pointer"
-          onClick={handleOnClickLike}
-          color={activeEmojiButton ? 'pink.400' : colorReact}
+          onClick={handleReactPost}
+          color={activeReactButton ? 'pink.400' : colorReact}
         >
           <Box lineHeight={1}>
             <AiOutlineHeart />
           </Box>
           Like
         </Flex>
-        <Box flex={1} pointerEvents={isFullPost && 'none'} onClick={handleShowFullPost}>
+        <Box flex={1} pointerEvents={isModal && 'none'} onClick={handleShowPostModal}>
           <Flex
-            onClick={onOpen}
+            //onClick={onOpen}
             cursor="pointer"
             py={1}
             rounded="5px"
@@ -217,11 +160,10 @@ const Post = forwardRef((props, ref) => {
             <AiOutlineMessage />
             Comments
           </Flex>
-          {isOpen && <FeedModal isOpen={isOpen} onClose={onClose} />}
         </Box>
       </Flex>
     </Box>
   )
-})
+}
 
-export default memo(Post)
+export default Post

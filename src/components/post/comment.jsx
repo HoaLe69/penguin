@@ -29,7 +29,7 @@ import { useToast } from '@chakra-ui/react'
 import { useInView } from 'react-intersection-observer'
 import { getAmountCommentCurrPost } from '../../redux/commentSlice'
 
-const CommentItem = memo(({ userOfPost, comment, onDelete }) => {
+const CommentItem = memo(({ ownerPostId, comment, onDelete }) => {
   // const [replyCommentData, setReplyCommentData] = useState({
   //   visible: false,
   //   replyTo: '',
@@ -73,7 +73,7 @@ const CommentItem = memo(({ userOfPost, comment, onDelete }) => {
           {/* </Text> */}
         </Box>
         <Box>
-          {(userLogin?.id === comment?.userId || userLogin?.id === userOfPost) && (
+          {(userLogin?.id === comment?.userId || userLogin?.id === ownerPostId) && (
             <Menu placement="bottom-end">
               <MenuButton size="sm" rounded="full" icon={<BsThreeDots />} as={IconButton} />
               <MenuList>
@@ -135,7 +135,7 @@ const CommentItem = memo(({ userOfPost, comment, onDelete }) => {
   )
 })
 
-const Comment = () => {
+const Comment = ({ postId, ownerPostId }) => {
   const toast = useToast()
   const [comments, setComments] = useState([])
   const [page, setPage] = useState(0)
@@ -143,8 +143,8 @@ const Comment = () => {
   const [hasMore, setHasMore] = useState(true)
   const { inView, ref } = useInView({ threshold: 1 })
 
-  const postId = useSelector(state => state.post?.currentPostInfor?.post?.id)
-  const userOfPost = useSelector(state => state.post?.currentPostInfor?.post?.userId)
+  //const postId = useSelector(state => state.post?.currentPostInfor?.post?.id)
+  //const userOfPost = useSelector(state => state.post?.currentPostInfor?.post?.userId)
   const userLogin = useSelector(state => state.auth.authState.user)
 
   const handleIncomingComment = useCallback(message => {
@@ -180,7 +180,6 @@ const Comment = () => {
     if (loading || !hasMore) return
     try {
       setLoading(true)
-      //      await new Promise(resolve => setTimeout(resolve, 10000))
       const response = await getAllComment(dispatch, postId, page)
       if (!response.content.length) {
         setHasMore(false)
@@ -201,7 +200,6 @@ const Comment = () => {
 
   useEffect(() => {
     if (inView && hasMore && !loading) {
-      console.log('run code inside useEffect')
       loadCommentHistory()
     }
   }, [inView])
@@ -216,7 +214,6 @@ const Comment = () => {
 
   const inputBackgroundColor = useColorModeValue('#f0e7db', '#202023')
 
-  // console.log({ loading, hasMore })
   return (
     <Box>
       <Box>
@@ -224,7 +221,7 @@ const Comment = () => {
           return (
             <CommentItem
               key={comment?.id || index}
-              userOfPost={userOfPost}
+              ownerPostId={ownerPostId}
               comment={comment}
               sendMessage={sendMessage}
               onDelete={handleDeleteComment}
@@ -257,4 +254,4 @@ const Comment = () => {
   )
 }
 
-export default Comment
+export default memo(Comment)

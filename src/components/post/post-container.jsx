@@ -1,12 +1,12 @@
-import { Box, Button } from '@chakra-ui/react'
-import { BeatLoader } from 'react-spinners'
-import Post from './post-item'
+import { Box, Button, HStack } from '@chakra-ui/react'
 import { useDispatch, useSelector } from 'react-redux'
 import { memo, useCallback, useEffect, useState } from 'react'
 import { useInView } from 'react-intersection-observer'
 import { createPostCleanOldState, deletePostCleanOldState, editPostCleanOldState } from '../../redux/postSlice'
 import { getAllPost } from '../../redux/api-request/posts'
 import useRefreshable from '../../hooks/useRefreshable'
+import { PostSkeletonLoading } from '../loading'
+import PostItemWrapper from './post-item-wrapper'
 
 const PostContainer = () => {
   const [loading, setLoading] = useState(false)
@@ -19,14 +19,12 @@ const PostContainer = () => {
   const postDeletedId = useSelector(state => state.post.deletePost.id)
   const postEdited = useSelector(state => state.post.editPost.post)
   const postCreated = useSelector(state => state.post.createPost.post)
-  const userLogin = useSelector(state => state.auth.authState.user)
 
   const fetchPost = useCallback(async () => {
     if (loading || !hasMore) return
     try {
       setLoading(true)
       const response = await getAllPost(page)
-      console.log({ response })
       if (!response.length) {
         setHasMore(false)
         return
@@ -44,7 +42,7 @@ const PostContainer = () => {
     if (inView) {
       fetchPost()
     }
-  }, [inView, userLogin])
+  }, [inView])
   const handleRefreshPost = useCallback(async () => {
     //todo
     setPosts([])
@@ -53,7 +51,7 @@ const PostContainer = () => {
     await fetchPost()
   }, [])
   useRefreshable('posts', handleRefreshPost)
-
+  // remove post
   useEffect(() => {
     if (!postDeletedId) return
     setPosts(pre => {
@@ -64,7 +62,7 @@ const PostContainer = () => {
       if (postDeletedId) dispatch(deletePostCleanOldState())
     }
   }, [postDeletedId])
-
+  // edit post
   useEffect(() => {
     if (!postEdited) return
     setPosts(pre => {
@@ -81,7 +79,7 @@ const PostContainer = () => {
       if (postEdited) dispatch(editPostCleanOldState())
     }
   }, [postEdited])
-
+  // new post
   useEffect(() => {
     if (!postCreated) return
     setPosts(pre => [postCreated, ...pre])
@@ -94,12 +92,17 @@ const PostContainer = () => {
   return (
     <Box pt={4}>
       {posts?.map(function (post) {
-        return <Post key={post.id} {...post} />
+        return <PostItemWrapper key={post.id} {...post} />
       })}
-      <Box pt={2} ref={ref} display="flex" justifyContent="center">
-        {loading && <BeatLoader color="white" />}
+      <Box pt={2} ref={ref} display="flex" flexDir="column" justifyContent="center">
+        {loading && <PostSkeletonLoading />}
+        {/* {loading && <BeatLoader color="white" />} */}
       </Box>
-      <Button onClick={handleRefreshPost}>Refresh</Button>
+      {!hasMore && (
+        <HStack justifyContent="center">
+          <Button onClick={handleRefreshPost}>Refresh</Button>
+        </HStack>
+      )}
     </Box>
   )
 }

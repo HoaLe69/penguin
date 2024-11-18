@@ -12,7 +12,6 @@ const InputRoomChat = ({ roomId, sendMessage }) => {
   const userLogin = useSelector(state => state.auth.authState.user)
 
   const handleSendMessage = useCallback(() => {
-    console.log({ roomId })
     if (!content.trim() || !roomId) return
     const message = {
       userId: userLogin?.id,

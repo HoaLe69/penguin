@@ -5,7 +5,7 @@ import axiosClient from '../../config/axios'
 import { getCurrentSelectedRoom } from '../../redux/conversationSlice'
 import { useToast } from '@chakra-ui/react'
 
-const MessaageButton = ({ member, receiver }) => {
+const GotoChatButton = ({ member, receiver }) => {
   const toast = useToast()
   const navigate = useNavigate()
   const dispatch = useDispatch()
@@ -15,9 +15,9 @@ const MessaageButton = ({ member, receiver }) => {
   const handleGoToRoomChat = async () => {
     if (senderId && receiveId) {
       try {
-        const res = await axiosClient.get(`/conversation/find/${senderId}/${receiveId}`)
-        if (res) {
-          dispatch(getCurrentSelectedRoom({ info: res, receiver }))
+        const room = await axiosClient.get(`/conversation/find/${senderId}/${receiveId}`)
+        if (room?.id) {
+          dispatch(getCurrentSelectedRoom({ info: room, receiver }))
         } else {
           const res = await axiosClient.post(`/conversation/create`, { member: member })
           dispatch(getCurrentSelectedRoom({ info: res, receiver }))
@@ -37,4 +37,4 @@ const MessaageButton = ({ member, receiver }) => {
   return <Button onClick={handleGoToRoomChat}>Messages</Button>
 }
 
-export default MessaageButton
+export default GotoChatButton

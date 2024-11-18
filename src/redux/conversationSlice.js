@@ -31,7 +31,6 @@ const conversationSlice = createSlice({
       state.selectedRoom.receiver = action.payload.receiver
     },
     chooseRoomFloat: (state, action) => {
-      console.log({ payload: action.payload })
       const isOpened = state.roomFloatSelect.rooms.some(room => {
         return room?.info.id === action.payload.info.id
       })

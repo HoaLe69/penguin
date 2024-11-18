@@ -1,50 +1,51 @@
-import { Box, Heading, Image, Grid, GridItem, useDisclosure } from '@chakra-ui/react'
+import { Box, useToast, Heading, Image, Grid, GridItem, useDisclosure } from '@chakra-ui/react'
 import { AiFillHeart } from 'react-icons/ai'
-import { getAllPostUser } from '@redux/api-request/posts'
+import { getAllPostUser, reactPost } from '@redux/api-request/posts'
 import { useDispatch, useSelector } from 'react-redux'
-import { useEffect } from 'react'
-import { getCurrentPostInfor } from '@redux/postSlice'
+import { useEffect, useState, useMemo, useCallback } from 'react'
 import FeedModal from '../modals/feed'
+import { ProfilePostSkeletonLoading } from '../loading'
 
-const ProfilePostItem = ({
-  userId,
-  description,
-  comments,
-  displayName,
-  cloudinaryId,
-  tag,
-  photoUrl,
-  thumbnail,
-  like,
-  id,
-  createAt,
-  isDetail
-}) => {
+const ProfilePostItem = ({ ...postInfo }) => {
   const { isOpen, onClose, onOpen } = useDisclosure()
-  const dispatch = useDispatch()
-  const handleShowFullPost = () => {
-    dispatch(
-      getCurrentPostInfor({
-        id,
-        userId,
-        cloudId: cloudinaryId,
-        photoUrl,
-        tag,
-        displayName,
-        description,
-        thumbnail,
-        like,
-        comments,
-        createAt,
-        isDetail
-      })
-    )
+  const toast = useToast()
+  const userLogin = useSelector(state => state.auth.authState.user)
+  const [postReactionList, setPostReactionList] = useState(() => postInfo.like)
+
+  const handleShowPostModal = useCallback(() => {
     onOpen()
-  }
+  }, [])
+
+  const isUserLoginLikeThisPost = useMemo(() => {
+    return postReactionList?.includes(userLogin?.id)
+  }, [postReactionList.length])
+
+  const handleLeaveEmojiPost = useCallback(async () => {
+    try {
+      await reactPost(postInfo.id, userLogin?.id)
+      if (isUserLoginLikeThisPost) {
+        setPostReactionList(pre => pre.filter(l => l !== userLogin?.id))
+        return
+      }
+      setPostReactionList(pre => [...pre, userLogin?.id])
+    } catch (error) {
+      // run toast message here
+      console.log(error)
+      toast({
+        title: 'Post',
+        position: 'bottom-left',
+        description: error.response.data || 'Something went wrong',
+        status: 'info',
+        duration: 1500,
+        isClosable: true
+      })
+    }
+  }, [userLogin, isUserLoginLikeThisPost])
+
   return (
-    <Box position="relative" role="group" cursor="pointer" onClick={handleShowFullPost}>
+    <Box position="relative" role="group" cursor="pointer" onClick={handleShowPostModal}>
       <Box height={{ base: '300px', lg: '400px' }}>
-        <Image src={thumbnail} alt={id} height="full" width="full" objectFit="cover" />
+        <Image src={postInfo?.thumbnail} alt={postInfo?.id} height="full" width="full" objectFit="cover" />
       </Box>
       <Box
         position="absolute"
@@ -58,9 +59,16 @@ const ProfilePostItem = ({
         placeItems="center"
       >
         <Box display="flex" alignItems="center" gap="5px" color="whiteAlpha.800">
-          {like?.length} <AiFillHeart />
+          {postReactionList?.length} <AiFillHeart />
         </Box>
-        <FeedModal isOpen={isOpen} onClose={onClose} />
+        <FeedModal
+          isOpen={isOpen}
+          onClose={onClose}
+          postInfo={postInfo}
+          postReactionList={postReactionList}
+          activeReactButton={isUserLoginLikeThisPost}
+          handleReactPost={handleLeaveEmojiPost}
+        />
       </Box>
     </Box>
   )
@@ -69,6 +77,7 @@ const ProfilePostItem = ({
 const ProfilePost = ({ userProfileId }) => {
   const dispatch = useDispatch()
   const profilePost = useSelector(state => state.post.getPostUser.posts)
+  const isLoading = useSelector(state => state.post.getPostUser.isFetching)
 
   useEffect(() => {
     getAllPostUser(dispatch, userProfileId)
@@ -86,24 +95,28 @@ const ProfilePost = ({ userProfileId }) => {
       >
         All post
       </Heading>
-      <Grid
-        templateColumns={{
-          base: 'repeat(2, 1fr)',
-          sm: 'repeat(2, 1fr)',
-          md: 'repeat(3 , 1fr)',
-          lg: 'repeat(3 , 1fr) '
-        }}
-        gap={2}
-        pt={4}
-      >
-        {profilePost.map(data => {
-          return (
-            <GridItem key={data.id}>
-              <ProfilePostItem {...data} />
-            </GridItem>
-          )
-        })}
-      </Grid>
+      {isLoading ? (
+        <ProfilePostSkeletonLoading />
+      ) : (
+        <Grid
+          templateColumns={{
+            base: 'repeat(2, 1fr)',
+            sm: 'repeat(2, 1fr)',
+            md: 'repeat(3 , 1fr)',
+            lg: 'repeat(3 , 1fr) '
+          }}
+          gap={2}
+          pt={4}
+        >
+          {profilePost.map(data => {
+            return (
+              <GridItem key={data.id}>
+                <ProfilePostItem {...data} />
+              </GridItem>
+            )
+          })}
+        </Grid>
+      )}
     </Box>
   )
 }

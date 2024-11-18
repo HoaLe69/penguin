@@ -6,7 +6,6 @@ export const getAllComment = async (dispatch, postId, page = 0) => {
   dispatch(getAllCommentStart())
   try {
     const res = await axiosClient.get(`/comment/${postId}?page=${page}`)
-    console.log({ res })
     return res
     //    dispatch(getAllCommentSuccess(res))
   } catch (err) {

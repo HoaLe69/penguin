@@ -14,11 +14,8 @@ import {
   getUserProfileSuccess,
   getUserProfileFailure
 } from '../userSlice'
-import axios from 'axios'
 import axiosClient from '../../config/axios'
 import { verifyUserFailure, verifyUserSuccess } from '../authSlice'
-
-const baseUrl = process.env.REACT_APP_API_URL
 
 export const verifyUser = async dispatch => {
   try {
@@ -72,7 +69,7 @@ export const followOtherUser = async (dispatch, friendId, userLoginId) => {
 export const getListFollowing = async (dispatch, listIdUser) => {
   dispatch(getListUserFollowingStart())
   try {
-    const res = await axiosClient.post(`${baseUrl}/user/getUserFollow`, { list: listIdUser })
+    const res = await axiosClient.post(`/user/getUserFollow`, { list: listIdUser })
     dispatch(getListUserFollowingSuccess(res))
   } catch (err) {
     console.log(err)
@@ -84,7 +81,7 @@ export const getListFollowing = async (dispatch, listIdUser) => {
 export const getListFollower = async (dispatch, listIdUser) => {
   dispatch(getListUserFollowerStart())
   try {
-    const res = await axiosClient.post(`${baseUrl}/user/getUserFollow`, { list: listIdUser })
+    const res = await axiosClient.post(`/user/getUserFollow`, { list: listIdUser })
     dispatch(getListUserFollowerSuccess(res))
   } catch (err) {
     console.log(err)

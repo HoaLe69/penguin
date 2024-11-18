@@ -5,7 +5,8 @@ import { useEffect } from 'react'
 import { followOtherUser, getUserProfile } from '@redux/api-request/user'
 import ListFollowingModal from '../modals/following'
 import ListFollowerModal from '../modals/follower'
-import MessaageButton from './message-button-profile'
+import GotoChatButton from './message-button-profile'
+import { ProfileHeaderSkeletonLoading } from '../loading'
 
 const Details = ({ title, quantity, onClick, ...props }) => {
   return (
@@ -30,6 +31,7 @@ const ProfileHeader = ({ userProfileId }) => {
   const { isOpen, onOpen, onClose } = useDisclosure()
 
   const userProfile = useSelector(state => state.user.userProfile?.info)
+  const isFetchingUserProfile = useSelector(state => state.user.userProfile?.isFetching)
   const isLoadingFollow = useSelector(state => state.user.followOtherUser.isFetching)
   const userLogin = useSelector(state => state.auth.authState.user)
   const quantityPost = useSelector(state => state.post.getPostUser?.posts).length
@@ -49,50 +51,58 @@ const ProfileHeader = ({ userProfileId }) => {
     if (!isInFollowerList && isInFollowingList) return 'Follow back'
     return 'Follow'
   }
+
+  const borderImageColor = useColorModeValue('gray.500', 'whiteAlpha.500')
+  const aboutTextColor = useColorModeValue('blue.500', 'pink.400')
+
   return (
     <Box pt={16}>
-      <Box display="flex" alignItems="center" flexDir={{ base: 'column', lg: 'row' }} justifyContent="center">
-        <Box width="300px" display="flex" justifyContent="center">
-          <Avatar
-            size="2xl"
-            src={userProfile?.avatar}
-            borderWidth="2px"
-            borderStyle="solid"
-            boxSize="150px"
-            borderColor={useColorModeValue('gray.500', 'whiteAlpha.500')}
-          />
-        </Box>
-        <Box display="flex" flexDir="column" alignItems="center">
-          <HStack spacing={5}>
-            <Heading as="h3" mt={2} fontSize="20px" fontWeight="500">
-              {userProfile?.displayName}
-            </Heading>
-            {userLogin?.id === userProfileId ? (
-              <Box mt={2} gap="10px" display="flex">
-                <Button colorScheme="teal" onClick={onOpen}>
-                  Edit profile
-                </Button>
-                <EditProfileModal isOpen={isOpen} user={userProfile} onClose={onClose} />
-              </Box>
-            ) : (
-              <Box mt={2}>
-                <Button px={4} onClick={handleFollowOtherUser} colorScheme="teal" isLoading={isLoadingFollow} mr={2}>
-                  {relation()}
-                </Button>
-                <MessaageButton receiver={userProfile} member={[userLogin?.id, userProfile?.id]} />
-              </Box>
-            )}
-          </HStack>
-          <Box display="flex" gap="10px" mt={4} alignItems="center">
-            <Details quantity={quantityPost} title="post" />
-            <Follower follower={userProfile?.follower} />
-            <Following following={userProfile?.following} />
+      {isFetchingUserProfile ? (
+        <ProfileHeaderSkeletonLoading />
+      ) : (
+        <Box display="flex" alignItems="center" flexDir={{ base: 'column', lg: 'row' }} justifyContent="center">
+          <Box width="300px" display="flex" justifyContent="center">
+            <Avatar
+              size="2xl"
+              src={userProfile?.avatar}
+              borderWidth="2px"
+              borderStyle="solid"
+              boxSize="150px"
+              borderColor={borderImageColor}
+            />
           </Box>
-          <Box p={2} fontSize="14px" color={useColorModeValue('blue.500', 'pink.400')}>
-            {userProfile?.about}
+          <Box display="flex" flexDir="column" alignItems="center">
+            <HStack spacing={5}>
+              <Heading as="h3" mt={2} fontSize="20px" fontWeight="500">
+                {userProfile?.displayName}
+              </Heading>
+              {userLogin?.id === userProfileId ? (
+                <Box mt={2} gap="10px" display="flex">
+                  <Button colorScheme="teal" onClick={onOpen}>
+                    Edit profile
+                  </Button>
+                  <EditProfileModal isOpen={isOpen} user={userProfile} onClose={onClose} />
+                </Box>
+              ) : (
+                <Box mt={2}>
+                  <Button px={4} onClick={handleFollowOtherUser} colorScheme="teal" isLoading={isLoadingFollow} mr={2}>
+                    {relation()}
+                  </Button>
+                  <GotoChatButton receiver={userProfile} member={[userLogin?.id, userProfile?.id]} />
+                </Box>
+              )}
+            </HStack>
+            <Box display="flex" gap="10px" mt={4} alignItems="center">
+              <Details quantity={quantityPost} title="post" />
+              <Follower follower={userProfile?.follower} />
+              <Following following={userProfile?.following} />
+            </Box>
+            <Box p={2} fontSize="14px" color={aboutTextColor}>
+              {userProfile?.about}
+            </Box>
           </Box>
         </Box>
-      </Box>
+      )}
     </Box>
   )
 }

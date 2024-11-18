@@ -4,6 +4,8 @@ import Post from './post-item'
 import { useDispatch, useSelector } from 'react-redux'
 import { useEffect } from 'react'
 import { getAllPostFromUserFollowing } from '@redux/api-request/posts'
+import EmptyRoom from '../conversation/room-empty'
+import EmptyState from '../empty-state'
 
 const PostFollowing = ({ index }) => {
   const dispatch = useDispatch()
@@ -12,16 +14,23 @@ const PostFollowing = ({ index }) => {
   const userLogin = useSelector(state => state.auth.authState.user)
 
   useEffect(() => {
+    if (!userLogin?.following.length) return
     if (userLogin?.following) getAllPostFromUserFollowing(dispatch, userLogin?.following)
   }, [userLogin?.following?.length, index])
   return (
     <Box pt={4}>
-      {posts?.map(function (post) {
-        return <Post key={post.id} {...post} />
-      })}
-      <Box pt={2} display="flex" justifyContent="center">
-        {isLoading && <BeatLoader color="white" />}
-      </Box>
+      {!isLoading && !posts?.length ? (
+        <EmptyState title="No users following" />
+      ) : (
+        <>
+          {posts?.map(function (post) {
+            return <Post key={post.id} {...post} />
+          })}
+          <Box pt={2} display="flex" justifyContent="center">
+            {isLoading && <BeatLoader color="white" />}
+          </Box>
+        </>
+      )}
     </Box>
   )
 }

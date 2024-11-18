@@ -1,11 +1,9 @@
 import { Modal, ModalOverlay, ModalContent, ModalCloseButton, ModalBody, ModalHeader, Box } from '@chakra-ui/react'
 import Comment from '../post/comment'
-import { useSelector } from 'react-redux'
 import Post from '../post/post-item'
 import { COLOR_THEME } from '../../constant'
 
-const FeedModal = ({ isOpen, onClose }) => {
-  const postInfo = useSelector(state => state.post?.currentPostInfor.post)
+const FeedModal = ({ isOpen, onClose, postInfo, ...postExtra }) => {
   return (
     <Modal scrollBehavior="inside" isOpen={isOpen} onClose={onClose} size="3xl">
       <ModalOverlay />
@@ -22,9 +20,9 @@ const FeedModal = ({ isOpen, onClose }) => {
           // maxH="75vh"
         >
           <Box>
-            <Post {...postInfo} isFullPost />
+            <Post {...postInfo} {...postExtra} isModal />
           </Box>
-          <Comment isOpen={isOpen} />
+          <Comment isOpen={isOpen} postId={postInfo?.id} ownerPostId={postInfo?.userId} />
         </ModalBody>
       </ModalContent>
     </Modal>

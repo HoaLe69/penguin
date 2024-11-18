@@ -79,23 +79,35 @@ const MakePost = ({ postDataEditMode }) => {
     }
   }
   const handleSubmit = () => {
-    if (!formData.thumbnail && formData.formData.description && !postDataEditMode) {
-      setErr('You must upload image')
-      return
+    try {
+      if (!formData.thumbnail && formData.formData.description && !postDataEditMode) {
+        setErr('You must upload image')
+        return
+      }
+      if (!formData.thumbnail && !formData.formData.description) {
+        setErr('empty post')
+        return
+      }
+      const form = new FormData()
+      const blob = new Blob([JSON.stringify(formData.formData)], {
+        type: 'application/json'
+      })
+      form.append('thumbnail', formData.thumbnail)
+      form.append('formData', blob)
+      if (postDataEditMode) {
+        editPost(dispatch, form, postDataEditMode?.id, postDataEditMode?.cloudinaryId, userLogin?.accessToken)
+      } else createPost(dispatch, navigate, form, userLogin?.accessToken)
+    } catch (error) {
+      console.log(error)
+      toast({
+        title: 'Create Post',
+        description: 'Something went wrong',
+        status: 'warning',
+        duration: 2000,
+        isClosable: true,
+        position: 'bottom-right'
+      })
     }
-    if (!formData.thumbnail && !formData.formData.description) {
-      setErr('empty post')
-      return
-    }
-    const form = new FormData()
-    const blob = new Blob([JSON.stringify(formData.formData)], {
-      type: 'application/json'
-    })
-    form.append('thumbnail', formData.thumbnail)
-    form.append('formData', blob)
-    if (postDataEditMode) {
-      editPost(dispatch, form, postDataEditMode?.id, postDataEditMode?.cloudinaryId, userLogin?.accessToken)
-    } else createPost(dispatch, navigate, form, userLogin?.accessToken)
   }
   const handleHideEmojiKeyboard = e => {
     if (e.target.closest('.emoji')) setShowEmoji(true)
