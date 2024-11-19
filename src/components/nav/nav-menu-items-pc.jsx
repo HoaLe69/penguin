@@ -38,7 +38,7 @@ const NavMenuPc = () => {
   const userLogin = useSelector(state => state.auth.authState.user)
   const handleLogOut = async () => {
     try {
-      await axiosClient.get(`http://localhost:8080/api/auth/log-out/${userLogin?.userName}`)
+      await axiosClient.get(`/auth/log-out/${userLogin?.userName}`)
       navigate('/login')
     } catch (err) {
       console.log(err)
