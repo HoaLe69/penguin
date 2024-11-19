@@ -135,7 +135,7 @@ const CommentItem = memo(({ ownerPostId, comment, onDelete }) => {
   )
 })
 
-const Comment = ({ postId, ownerPostId }) => {
+const Comment = ({ postId, ownerPostId, handleGetAmountOfComment }) => {
   const toast = useToast()
   const [comments, setComments] = useState([])
   const [page, setPage] = useState(0)
@@ -159,7 +159,10 @@ const Comment = ({ postId, ownerPostId }) => {
       } else {
         setComments(pre => [message.body.comment, ...pre])
       }
-      dispatch(getAmountCommentCurrPost(message.body.amountComment))
+      if (typeof handleGetAmountOfComment === 'function') {
+        handleGetAmountOfComment(message.body.amountComment)
+      }
+      //      dispatch(getAmountCommentCurrPost(message.body.amountComment))
     } catch (error) {
       toast({
         title: 'Comment',

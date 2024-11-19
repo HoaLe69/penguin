@@ -8,7 +8,15 @@ import formatTime from '../../util/timeago'
 import { deletePost } from '../../redux/api-request/posts'
 
 const Post = props => {
-  const { isModal, activeReactButton, handleShowPostModal, handleReactPost, postReactionList, ...postInfo } = props
+  const {
+    isModal,
+    activeReactButton,
+    amountOfComment,
+    handleShowPostModal,
+    handleReactPost,
+    postReactionList,
+    ...postInfo
+  } = props
   const userLogin = useSelector(state => state.auth.authState.user)
   const [numberOfLines, setNumberOfLines] = useState(0)
   // paragraph ref
@@ -19,7 +27,7 @@ const Post = props => {
   const colorReact = useColorModeValue('#1a202c', '#ffffff')
   const bgPost = useColorModeValue('whiteAlpha.700', 'whiteAlpha.200')
 
-  const amountOfComment = useSelector(state => state.comment.amountCommentCurrPost)
+  //  const amountOfComment = useSelector(state => state.comment.amountCommentCurrPost)
 
   useEffect(() => {
     if (pRef.current) {

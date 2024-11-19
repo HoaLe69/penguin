@@ -10,9 +10,14 @@ const PostItemWrapper = ({ ...postInfo }) => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const userLogin = useSelector(state => state.auth.authState.user)
   const [postReactionList, setPostReactionList] = useState(() => postInfo.like)
+  const [amountOfComment, setAmountOfComment] = useState(() => postInfo.comments)
 
   const handleShowPostModal = useCallback(() => {
     onOpen()
+  }, [])
+
+  const handleGetAmountOfComment = useCallback(amount => {
+    setAmountOfComment(amount)
   }, [])
 
   const isUserLoginLikeThisPost = useMemo(() => {
@@ -44,6 +49,7 @@ const PostItemWrapper = ({ ...postInfo }) => {
     <Box>
       <Post
         {...postInfo}
+        amountOfComment={amountOfComment}
         activeReactButton={isUserLoginLikeThisPost}
         postReactionList={postReactionList}
         handleReactPost={handleLeaveEmojiPost}
@@ -55,8 +61,10 @@ const PostItemWrapper = ({ ...postInfo }) => {
           onClose={onClose}
           postInfo={postInfo}
           postReactionList={postReactionList}
+          amountOfComment={amountOfComment}
           activeReactButton={isUserLoginLikeThisPost}
           handleReactPost={handleLeaveEmojiPost}
+          handleGetAmountOfComment={handleGetAmountOfComment}
         />
       )}
     </Box>

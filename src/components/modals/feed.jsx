@@ -22,7 +22,12 @@ const FeedModal = ({ isOpen, onClose, postInfo, ...postExtra }) => {
           <Box>
             <Post {...postInfo} {...postExtra} isModal />
           </Box>
-          <Comment isOpen={isOpen} postId={postInfo?.id} ownerPostId={postInfo?.userId} />
+          <Comment
+            handleGetAmountOfComment={postExtra.handleGetAmountOfComment}
+            isOpen={isOpen}
+            postId={postInfo?.id}
+            ownerPostId={postInfo?.userId}
+          />
         </ModalBody>
       </ModalContent>
     </Modal>
