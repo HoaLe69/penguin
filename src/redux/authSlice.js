@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit'
+import { createSlice, current } from '@reduxjs/toolkit'
 
 export const authSlice = createSlice({
   name: 'auth',
@@ -28,6 +28,20 @@ export const authSlice = createSlice({
     verifyUserFailure: state => {
       state.authState.user = null
       state.authState.isAuthenticated = false
+    },
+    updateUserLoginFollowingList: (state, action) => {
+      const { actions, userFollowId } = action.payload
+      console.log({ actions, userFollowId })
+      const currentUserLoginInfo = state.authState.user
+      const currentUserLoginFollowingList =
+        actions === 'follow'
+          ? [...currentUserLoginInfo.following, userFollowId]
+          : currentUserLoginInfo.following.filter(followingId => followingId !== userFollowId)
+
+      state.authState.user = {
+        ...currentUserLoginInfo,
+        following: currentUserLoginFollowingList
+      }
     },
     loginStart: state => {
       state.loginState.isFetching = true
@@ -67,7 +81,8 @@ export const {
   registerFailed,
   registerSuccess,
   verifyUserSuccess,
-  verifyUserFailure
+  verifyUserFailure,
+  updateUserLoginFollowingList
 } = authSlice.actions
 
 export default authSlice.reducer

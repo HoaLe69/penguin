@@ -15,7 +15,7 @@ import {
   getUserProfileFailure
 } from '../userSlice'
 import axiosClient from '../../config/axios'
-import { verifyUserFailure, verifyUserSuccess } from '../authSlice'
+import { updateUserLoginFollowingList, verifyUserFailure, verifyUserSuccess } from '../authSlice'
 
 export const verifyUser = async dispatch => {
   try {
@@ -57,6 +57,16 @@ export const followOtherUser = async (dispatch, friendId, userLoginId) => {
   dispatch(followOtherUserStart())
   try {
     const res = await axiosClient.patch(`/user/interactive/${friendId}`, { id: userLoginId })
+    console.log({ res })
+    const listFollowerOfCurrentUserProfile = res?.follower
+
+    //userlogin start to follow this user
+    if (listFollowerOfCurrentUserProfile?.includes(userLoginId)) {
+      dispatch(updateUserLoginFollowingList({ actions: 'follow', userFollowId: res.id }))
+    } else {
+      // userlogin unfollow this user
+      dispatch(updateUserLoginFollowingList({ actions: 'unfollow', userFollowId: res.id }))
+    }
     dispatch(getUserProfileSuccess(res))
   } catch (err) {
     console.log(err)

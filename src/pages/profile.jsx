@@ -4,7 +4,6 @@ import { Box, Container } from '@chakra-ui/react'
 import NavTop from '@components/nav/nav-top'
 import NavBot from '@components/nav/nav-bot'
 import { useLocation } from 'react-router-dom'
-import ChatFloat from '@components/chat-float/chat-float'
 
 const Profile = () => {
   const { pathname } = useLocation()
@@ -21,7 +20,6 @@ const Profile = () => {
       <Box display={{ base: 'flex', lg: 'none' }}>
         <NavBot />
       </Box>
-      <ChatFloat />
     </Box>
   )
 }

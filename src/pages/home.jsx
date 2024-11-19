@@ -4,7 +4,6 @@ import CreatePostModal from '@components/modals/create'
 import { memo } from 'react'
 import LayoutTab from '../layout/layout-tab'
 import { useSelector } from 'react-redux'
-import ChatFloat from '../components/chat-float/chat-float'
 import { getAllPost } from '@redux/api-request/posts'
 
 const Home = () => {
@@ -35,7 +34,6 @@ const Home = () => {
         </Box>
         <PostContainer getPost={getAllPost} />
       </Box>
-      <ChatFloat />
     </LayoutTab>
   )
 }
