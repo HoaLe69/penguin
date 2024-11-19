@@ -1,7 +1,5 @@
-import { Box, Text, Flex, Avatar, Heading, useColorModeValue, Link } from '@chakra-ui/react'
+import { Box, Text, Flex, Avatar, Heading, useColorModeValue, Link, Spinner } from '@chakra-ui/react'
 import { AiOutlineLeft } from 'react-icons/ai'
-import { Link as ReactRouterLink } from 'react-router-dom'
-import route from '@config/route'
 import { COLOR_THEME } from '../../constant'
 import { useSelector } from 'react-redux'
 import EmptyRoom from './room-empty'
@@ -11,8 +9,9 @@ import { useEffect, useRef, useState, useCallback } from 'react'
 import InputRoomChat from './input-mess'
 import axiosClient from '../../config/axios'
 
-const RoomConversation = () => {
+const RoomConversation = ({ onPressMobileBackToChatList }) => {
   const [messages, setMessages] = useState([])
+  const [loading, setLoading] = useState(false)
   const refDiv = useRef(null)
 
   const selectedRoom = useSelector(state => state.room.selectedRoom.info)
@@ -32,11 +31,14 @@ const RoomConversation = () => {
 
   useEffect(() => {
     const loadMessageHistory = async () => {
+      setLoading(true)
       try {
         const res = await axiosClient.get(`/message/all/${selectedRoom?.id}`)
         setMessages(res)
       } catch (err) {
         console.log(err)
+      } finally {
+        setLoading(false)
       }
     }
     if (selectedRoom?.id) loadMessageHistory()
@@ -56,11 +58,11 @@ const RoomConversation = () => {
             css={{ backdropFilter: 'blur(10px)' }}
             bg={bgHeader}
           >
-            <Link display={{ lg: 'none', base: 'block' }} as={ReactRouterLink} to={route.message}>
+            <Box onClick={onPressMobileBackToChatList} display={{ lg: 'none', base: 'block' }}>
               <Box fontSize="20px">
                 <AiOutlineLeft />
               </Box>
-            </Link>
+            </Box>
             <Avatar ml={2} src={receiver?.avatar} size="sm" alt={receiver?.displayName} />
             <Heading as="h3" fontSize="16px">
               {receiver?.displayName}
@@ -73,17 +75,23 @@ const RoomConversation = () => {
                 <Text color="gray.500">Let chat with {receiver?.displayName}</Text>
               </Box>
               <Box pb={12}>
-                {messages.map((message, index) => {
-                  return (
-                    <Message
-                      roomId={selectedRoom?.id}
-                      key={index}
-                      receiver={receiver}
-                      avatar={receiver?.avatar}
-                      {...message}
-                    />
-                  )
-                })}
+                {loading ? (
+                  <Box display="flex" alignItems="center" justifyContent="center" minH="100px">
+                    <Spinner />
+                  </Box>
+                ) : (
+                  messages.map((message, index) => {
+                    return (
+                      <Message
+                        roomId={selectedRoom?.id}
+                        key={index}
+                        receiver={receiver}
+                        avatar={receiver?.avatar}
+                        {...message}
+                      />
+                    )
+                  })
+                )}
               </Box>
             </Box>
             <InputRoomChat roomId={selectedRoom.id} sendMessage={sendMessage} />

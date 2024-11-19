@@ -16,7 +16,6 @@ import { BsPatchPlusFill } from 'react-icons/bs'
 import CreatePostModal from '../modals/create'
 import ToggleThemeButton from '../theme-toggle-btn'
 import { COLOR_THEME } from '../../constant'
-import Notify from '../notify/notify'
 import { BiLogOut } from 'react-icons/bi'
 import { CgProfile } from 'react-icons/cg'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
@@ -51,16 +50,6 @@ const NavMenuPc = () => {
         <MenuItemPc icon={<BsPatchPlusFill />} title="create" onOpen={onOpen} />
         <CreatePostModal isOpen={isOpen} onClose={onClose} />
       </Box>
-      <Menu placement="auto">
-        <Tooltip label="notification">
-          <MenuButton _expanded={{ color: 'grassTeal' }}>
-            <MenuItemPc icon={<AiFillHeart />} title="notification" />
-          </MenuButton>
-        </Tooltip>
-        <MenuList bg={COLOR_THEME.BG} width="md" maxH="60vh">
-          <Notify />
-        </MenuList>
-      </Menu>
       <Menu placement="bottom">
         <Tooltip label="message">
           <MenuButton display={pathname.includes('/chat') ? 'none' : 'block'} _expanded={{ color: 'grassTeal' }}>

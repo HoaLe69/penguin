@@ -31,7 +31,6 @@ export const authSlice = createSlice({
     },
     updateUserLoginFollowingList: (state, action) => {
       const { actions, userFollowId } = action.payload
-      console.log({ actions, userFollowId })
       const currentUserLoginInfo = state.authState.user
       const currentUserLoginFollowingList =
         actions === 'follow'

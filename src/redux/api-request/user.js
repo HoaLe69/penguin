@@ -57,7 +57,6 @@ export const followOtherUser = async (dispatch, friendId, userLoginId) => {
   dispatch(followOtherUserStart())
   try {
     const res = await axiosClient.patch(`/user/interactive/${friendId}`, { id: userLoginId })
-    console.log({ res })
     const listFollowerOfCurrentUserProfile = res?.follower
 
     //userlogin start to follow this user

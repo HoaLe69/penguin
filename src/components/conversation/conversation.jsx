@@ -1,12 +1,12 @@
 import WrapContent from '@components/common/wrap-content'
-import { Flex, Avatar, Heading, Box, useColorModeValue } from '@chakra-ui/react'
+import { Flex, Avatar, Heading, Box, useColorModeValue, Spinner } from '@chakra-ui/react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { getAllRoomConversation } from '@redux/api-request/room'
 import axiosClient from '../../config/axios'
 import { getCurrentSelectedRoom } from '../../redux/conversationSlice'
 
-const CoversItem = ({ senderId, room }) => {
+const CoversItem = ({ senderId, room, onPressMobile }) => {
   const [receiver, setReceiver] = useState()
   const selectedRoom = useSelector(state => state.room.selectedRoom.info)
 
@@ -34,6 +34,7 @@ const CoversItem = ({ senderId, room }) => {
   //  const textColor = useColorModeValue('gray.500', 'whiteAlpha.600')
 
   const handleSelectRoom = useCallback(() => {
+    if (typeof onPressMobile === 'function') onPressMobile()
     const payload = {
       info: room,
       receiver
@@ -54,7 +55,7 @@ const CoversItem = ({ senderId, room }) => {
       }}
     >
       <Avatar src={receiver?.avatar} sx={{ width: '40px', height: '40px' }} />
-      <Box display={{ base: 'none', lg: 'block' }}>
+      <Box>
         <Heading as="h3" fontSize="md">
           {receiver?.displayName}
         </Heading>
@@ -62,10 +63,11 @@ const CoversItem = ({ senderId, room }) => {
     </Flex>
   )
 }
-const Converstation = () => {
+const Converstation = ({ onPressMobile }) => {
   const dispatch = useDispatch()
   const userLogin = useSelector(state => state.auth.authState.user)
   const rooms = useSelector(state => state.room.getAllRoomConversation.rooms)
+  const isFetching = useSelector(state => state.room.getAllRoomConversation.isFetching)
   useEffect(() => {
     if (userLogin?.id) {
       getAllRoomConversation(dispatch, userLogin?.id)
@@ -73,9 +75,15 @@ const Converstation = () => {
   }, [userLogin?.id])
   return (
     <WrapContent title="Message">
-      {rooms.map(room => {
-        return <CoversItem senderId={userLogin?.id} key={room.id} room={room} />
-      })}
+      {isFetching ? (
+        <Box minH="60px" display="flex" alignItems="center" justifyContent="center">
+          <Spinner />
+        </Box>
+      ) : (
+        rooms.map(room => {
+          return <CoversItem onPressMobile={onPressMobile} senderId={userLogin?.id} key={room.id} room={room} />
+        })
+      )}
     </WrapContent>
   )
 }

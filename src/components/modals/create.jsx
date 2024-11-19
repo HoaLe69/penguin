@@ -19,7 +19,7 @@ const CreatePostModal = ({ mode, isOpen, onClose, postDataEditMode }) => {
   }, [isCreateSuccess, onClose, isEditSuccess])
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="lg">
+    <Modal isOpen={isOpen} onClose={onClose} size={{ base: 'full', lg: 'lg' }}>
       <ModalOverlay />
       <ModalContent py={0}>
         <ModalHeader textAlign="center" borderBottom="1px" borderBottomColor={COLOR_THEME.BORDER}>

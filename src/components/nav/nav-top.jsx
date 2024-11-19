@@ -10,7 +10,8 @@ import {
   InputRightElement,
   Spinner,
   Avatar,
-  Heading
+  Heading,
+  HStack
 } from '@chakra-ui/react'
 import NavWrap from './nav-wrap'
 import Logo from './logo'
@@ -27,16 +28,13 @@ import { useSelector } from 'react-redux'
 import useClickOutside from '../../hooks/useClickOutside'
 import { refreshEvents } from '../../hooks/useRefreshable'
 import { useLocation } from 'react-router-dom'
+import { GoSearch } from 'react-icons/go'
 
-const PopResult = ({ result, isOpen, setVisibleResult, userLoginId }) => {
+const PopResult = ({ result, isOpen, handleClosePopResult, userLoginId }) => {
   const refContainer = useRef(null)
   const bgHover = useColorModeValue('blackAlpha.200', 'whiteAlpha.300')
   const users = result.filter(user => user.id !== userLoginId) || []
 
-  const handleClosePopResult = useCallback(() => {
-    setVisibleResult(false)
-  }, [])
-  useClickOutside(refContainer, handleClosePopResult)
   return (
     <Box
       ref={refContainer}
@@ -46,7 +44,7 @@ const PopResult = ({ result, isOpen, setVisibleResult, userLoginId }) => {
       pos="absolute"
       right="0"
       left="0"
-      top="90%"
+      top="110%"
       width="100%"
       bg={useColorModeValue('#fff', '#2D3748')}
     >
@@ -84,6 +82,7 @@ const PopResult = ({ result, isOpen, setVisibleResult, userLoginId }) => {
 }
 
 const NavTop = ({ isFixed }) => {
+  const [visibleSearchOnMobileScreen, setVisibleSearchOnMobileScreen] = useState(false)
   const [search, setSearchValue] = useState('')
   const [loading, setLoading] = useState(false)
   const [refreshing, setRefreshsing] = useState(false)
@@ -92,6 +91,8 @@ const NavTop = ({ isFixed }) => {
   const debounceValue = useDebounce(search)
   const userLogin = useSelector(state => state.auth.authState.user)
   const { pathname } = useLocation()
+
+  const refInputContainer = useRef(null)
 
   useEffect(() => {
     if (!debounceValue.trim()) {
@@ -131,27 +132,47 @@ const NavTop = ({ isFixed }) => {
     refreshEvents.emit('refresh:posts')
   }, [])
 
+  const handlePressSearch = useCallback(() => {
+    setVisibleSearchOnMobileScreen(true)
+  }, [])
+
+  const handleClosePopResult = useCallback(() => {
+    setVisibleResult(false)
+    setVisibleSearchOnMobileScreen(false)
+    setSearchValue('')
+  }, [])
+
+  useClickOutside(refInputContainer, handleClosePopResult)
+
   return (
     <NavWrap isFixed={isFixed}>
+      <Box
+        shadow="dark-lg"
+        display={refreshing ? 'flex' : 'none'}
+        alignItems="center"
+        justifyContent="center"
+        position="absolute"
+        top="120%"
+        left="50%"
+        translateX="-50%"
+        bg={bgLoadingPost}
+        width="12"
+        height="12"
+        borderRadius="full"
+      >
+        <Spinner color="teal.500" />
+      </Box>
       <Flex justify="space-between">
-        <Logo onClick={handleRefreshPost} />
-        <Box pos="relative">
-          <Box
-            shadow="dark-lg"
-            display={refreshing ? 'flex' : 'none'}
-            alignItems="center"
-            justifyContent="center"
-            position="absolute"
-            top="120%"
-            left="50%"
-            bg={bgLoadingPost}
-            width="12"
-            height="12"
-            borderRadius="full"
+        <Logo onClick={handleRefreshPost} display={{ base: visibleSearchOnMobileScreen && 'none', lg: 'block' }} />
+        <HStack flex={1} justifyContent="center" px="2">
+          <InputGroup
+            ref={refInputContainer}
+            position="relative"
+            display={{ base: visibleSearchOnMobileScreen ? 'flex' : 'none', lg: 'flex' }}
+            bg={useColorModeValue('whiteAlpha.700', 'whiteAlpha.200')}
+            rounded="20px"
+            maxW="300px"
           >
-            <Spinner color="teal.500" />
-          </Box>
-          <InputGroup bg={useColorModeValue('whiteAlpha.700', 'whiteAlpha.200')} rounded="20px" w="300px">
             <InputLeftElement pointerEvents="none">
               <BiSearchAlt />
             </InputLeftElement>
@@ -167,25 +188,24 @@ const NavTop = ({ isFixed }) => {
                 <Spinner />
               </InputRightElement>
             )}
+            <PopResult
+              handleClosePopResult={handleClosePopResult}
+              userLoginId={userLogin?.id}
+              result={result}
+              isOpen={visibleResult}
+            />
           </InputGroup>
-          <PopResult
-            userLoginId={userLogin?.id}
-            result={result}
-            isOpen={visibleResult}
-            setVisibleResult={setVisibleResult}
-          />
-        </Box>
+        </HStack>
 
         <Box display={{ lg: 'none' }}>
-          <Link to={route.notifi} as={ReactRouterLink}>
-            <IconButton
-              fontSize={'20px'}
-              isRound={true}
-              icon={<AiOutlineHeart />}
-              bg={useColorModeValue('whiteAlpha.500', 'whiteAlpha.200')}
-            />
-          </Link>
-          <Link to={route.message} as={ReactRouterLink}>
+          <IconButton
+            onClick={handlePressSearch}
+            fontSize={'20px'}
+            isRound={true}
+            icon={<GoSearch />}
+            bg={useColorModeValue('whiteAlpha.500', 'whiteAlpha.200')}
+          />
+          <Link as={ReactRouterLink} to={route.chat}>
             <IconButton
               fontSize={'20px'}
               isRound={true}

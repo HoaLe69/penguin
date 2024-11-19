@@ -12,7 +12,7 @@ export const useStompClient = (topic, id, onMessageReceived) => {
     const stompClient = Stomp.over(socket)
 
     // disable console debug logs if not needed
-    //stompClient.debug = null
+    stompClient.debug = null
 
     stompClient.connect(
       {},

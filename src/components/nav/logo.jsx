@@ -1,5 +1,5 @@
-import { Link } from 'react-router-dom'
-import { Text, useColorModeValue } from '@chakra-ui/react'
+import { Link as ReactRouterLink } from 'react-router-dom'
+import { Text, Link, useColorModeValue } from '@chakra-ui/react'
 import styled from '@emotion/styled'
 import { AiOutlineQq } from 'react-icons/ai'
 
@@ -12,9 +12,9 @@ const LogoBox = styled.span`
   line-height: 20px;
 `
 
-const Logo = ({ onClick }) => {
+const Logo = ({ onClick, ...props }) => {
   return (
-    <Link to={'/'}>
+    <Link as={ReactRouterLink} to={'/'} {...props}>
       <LogoBox onClick={onClick}>
         <AiOutlineQq />
         <Text

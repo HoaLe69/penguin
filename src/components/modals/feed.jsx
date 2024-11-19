@@ -5,7 +5,7 @@ import { COLOR_THEME } from '../../constant'
 
 const FeedModal = ({ isOpen, onClose, postInfo, ...postExtra }) => {
   return (
-    <Modal scrollBehavior="inside" isOpen={isOpen} onClose={onClose} size="3xl">
+    <Modal scrollBehavior="inside" isOpen={isOpen} onClose={onClose} size={{ base: 'full', lg: '3xl' }}>
       <ModalOverlay />
       <ModalContent pb={2} px={0}>
         <ModalHeader textAlign="center" borderBottom="1px" borderBottomColor={COLOR_THEME.BORDER}>

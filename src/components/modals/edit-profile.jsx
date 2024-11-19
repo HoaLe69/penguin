@@ -38,7 +38,7 @@ const EditProfileModal = ({ isOpen, onClose }) => {
     }
   })
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="lg">
+    <Modal isOpen={isOpen} onClose={onClose} size={{ base: 'full', lg: 'lg' }}>
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>

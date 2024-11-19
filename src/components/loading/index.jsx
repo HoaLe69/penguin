@@ -1,4 +1,4 @@
-import { SkeletonCircle, Box, Grid, GridItem, Skeleton, HStack, SkeletonText, VStack, Button } from '@chakra-ui/react'
+import { SkeletonCircle, Box, Grid, GridItem, Skeleton, HStack, SkeletonText, VStack } from '@chakra-ui/react'
 
 export const PostSkeletonLoading = () => {
   return (
@@ -42,7 +42,7 @@ export const ProfileHeaderSkeletonLoading = () => {
       <Box width="300px" display="flex" justifyContent="center">
         <SkeletonCircle size="2xl" borderWidth="2px" borderStyle="solid" boxSize="150px" />
       </Box>
-      <Box display="flex" flexDir="column" alignItems="start" minW="300px">
+      <Box mt={{ base: '4' }} display="flex" flexDir="column" alignItems="start" minW="300px">
         <SkeletonText skeletonHeight="6" w="full" noOfLines={1} />
         <SkeletonText noOfLines={2} skeletonHeight="2" w="70%" mt="6" />
       </Box>
