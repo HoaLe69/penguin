@@ -19,7 +19,7 @@ const ChatFloatRoom = ({ room, receiver }) => {
   //  const userLogin = useSelector(state => state.auth.authState.user)
 
   const handleIncomingMessage = useCallback(message => {
-    setMessages(pre => [message.body, ...pre])
+    setMessages(pre => [...pre, message.body])
   }, [])
 
   const { sendMessage } = useStompClient('/topic/messages', room?.id, handleIncomingMessage)

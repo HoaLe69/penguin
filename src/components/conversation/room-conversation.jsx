@@ -47,7 +47,7 @@ const RoomConversation = ({ onPressMobileBackToChatList }) => {
   return (
     <>
       {selectedRoom ? (
-        <Box display="flex" h={{ base: '100vh', lg: 'full' }} flexDir="column">
+        <Box display="flex" h="full" flexDir="column">
           <Flex
             as="header"
             gap="10px"
