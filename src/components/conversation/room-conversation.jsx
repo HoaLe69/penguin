@@ -1,4 +1,4 @@
-import { Box, Text, Flex, Avatar, Heading, useColorModeValue, Link, Spinner } from '@chakra-ui/react'
+import { Box, Text, Flex, Avatar, Heading, useColorModeValue, Spinner } from '@chakra-ui/react'
 import { AiOutlineLeft } from 'react-icons/ai'
 import { COLOR_THEME } from '../../constant'
 import { useSelector } from 'react-redux'
@@ -68,34 +68,32 @@ const RoomConversation = ({ onPressMobileBackToChatList }) => {
               {receiver?.displayName}
             </Heading>
           </Flex>
-          <Box flex="1" sx={{ height: 'calc(100% - 56px)' }} display="flex" flexDir="column" justifyContent="flex-end">
-            <Box p={2} display="flex" flexDir="column" maxH="100%" ref={refDiv} overflowY="auto" overflowX="hidden">
-              <Box display="flex" flexDir="column" alignItems="center" mb={20}>
-                <Avatar src={receiver?.avatar} size="xl" alt={receiver?.displayName} />
-                <Text color="gray.500">Let chat with {receiver?.displayName}</Text>
-              </Box>
-              <Box pb={12}>
-                {loading ? (
-                  <Box display="flex" alignItems="center" justifyContent="center" minH="100px">
-                    <Spinner />
-                  </Box>
-                ) : (
-                  messages.map((message, index) => {
-                    return (
-                      <Message
-                        roomId={selectedRoom?.id}
-                        key={index}
-                        receiver={receiver}
-                        avatar={receiver?.avatar}
-                        {...message}
-                      />
-                    )
-                  })
-                )}
-              </Box>
+          <Box flex="1" display="flex" flexDir="column" overflowY="auto" overflowX="hidden" p={2} ref={refDiv}>
+            <Box display="flex" flexDir="column" alignItems="center" mb={20}>
+              <Avatar src={receiver?.avatar} size="xl" alt={receiver?.displayName} />
+              <Text color="gray.500">Let chat with {receiver?.displayName}</Text>
             </Box>
-            <InputRoomChat roomId={selectedRoom.id} sendMessage={sendMessage} />
+            <Box pb={12}>
+              {loading ? (
+                <Box display="flex" alignItems="center" justifyContent="center" minH="100px">
+                  <Spinner />
+                </Box>
+              ) : (
+                messages.map((message, index) => {
+                  return (
+                    <Message
+                      roomId={selectedRoom?.id}
+                      key={index}
+                      receiver={receiver}
+                      avatar={receiver?.avatar}
+                      {...message}
+                    />
+                  )
+                })
+              )}
+            </Box>
           </Box>
+          <InputRoomChat roomId={selectedRoom.id} sendMessage={sendMessage} />
         </Box>
       ) : (
         <EmptyRoom />
