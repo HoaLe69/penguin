@@ -1,10 +1,10 @@
 import { Box } from '@chakra-ui/react'
 import { BeatLoader } from 'react-spinners'
-import Post from './post-item'
 import { useDispatch, useSelector } from 'react-redux'
 import { useEffect } from 'react'
 import { getAllPostFromUserFollowing } from '@redux/api-request/posts'
 import EmptyState from '../empty-state'
+import PostItemWrapper from './post-item-wrapper'
 
 const PostFollowing = ({ index }) => {
   const dispatch = useDispatch()
@@ -27,7 +27,7 @@ const PostFollowing = ({ index }) => {
             </Box>
           ) : (
             posts?.map(function (post) {
-              return <Post key={post.id} {...post} />
+              return <PostItemWrapper key={post.id} {...post} />
             })
           )}
         </>
