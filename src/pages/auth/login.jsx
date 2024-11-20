@@ -21,6 +21,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useCallback } from 'react'
 import GoogleIcon from '../../components/icons/GoogleIcon'
 import { useGoogleLogin } from '@react-oauth/google'
+import GoogleButtonLogin from '../../components/google-login-button'
 
 const FormStyled = styled.form`
   width: 400px;
@@ -39,14 +40,6 @@ const Login = () => {
     },
     onSubmit: formData => {
       login(dispatch, navigate, formData)
-    }
-  })
-  const googleAuthorizeURL = useCallback(token => {
-    return `https://penguin-brown-eight.vercel.app/login/redirect/google?code=${token}`
-  }, [])
-  const handleGoogleLogin = useGoogleLogin({
-    onSuccess: tokenResponse => {
-      window.location.assign(googleAuthorizeURL(tokenResponse?.access_token))
     }
   })
 
@@ -105,10 +98,7 @@ const Login = () => {
                 Login with other
               </Text>
             </Box>
-            <Button gap={2} width="full" onClick={handleGoogleLogin}>
-              <GoogleIcon />
-              Login With Google
-            </Button>
+            <GoogleButtonLogin title="Login with google" />
           </FormControl>
           {message && (
             <Alert status="error">
