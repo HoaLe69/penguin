@@ -202,6 +202,10 @@ const Comment = ({ postId, ownerPostId, handleGetAmountOfComment }) => {
   }, [page, hasMore])
 
   useEffect(() => {
+    loadCommentHistory()
+  }, [])
+
+  useEffect(() => {
     if (inView && hasMore && !loading) {
       loadCommentHistory()
     }
