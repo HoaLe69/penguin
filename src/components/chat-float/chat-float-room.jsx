@@ -89,7 +89,7 @@ const ChatFloatRoom = ({ room, receiver }) => {
           <Box width="full" display="flex" alignItems="center" justifyContent="center">
             {loading && <Spinner />}
           </Box>
-          <Box display="flex" flexDirection="column-reverse">
+          <Box>
             {messages?.map((message, index) => {
               return <Message {...message} receiver={receiver} key={message?.id || index} roomId={room?.id} isFloat />
             })}
