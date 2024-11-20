@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { getAllRoomConversation } from '@redux/api-request/room'
 import axiosClient from '../../config/axios'
 import { getCurrentSelectedRoom } from '../../redux/conversationSlice'
+import EmptyState from '../empty-state'
 
 const CoversItem = ({ senderId, room, onPressMobile }) => {
   const [receiver, setReceiver] = useState()
@@ -79,8 +80,10 @@ const Converstation = ({ onPressMobile }) => {
         <Box minH="60px" display="flex" alignItems="center" justifyContent="center">
           <Spinner />
         </Box>
+      ) : !rooms.length ? (
+        <EmptyState title="No rooms chat" />
       ) : (
-        rooms.map(room => {
+        rooms?.map(room => {
           return <CoversItem onPressMobile={onPressMobile} senderId={userLogin?.id} key={room.id} room={room} />
         })
       )}

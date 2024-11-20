@@ -1,4 +1,4 @@
-import { useColorModeValue, Heading, Text, Flex, Box, Avatar, Link } from '@chakra-ui/react'
+import { useColorModeValue, Heading, Text, Flex, Box, Avatar, Link, Spinner } from '@chakra-ui/react'
 import WrapContent from '@components/common/wrap-content'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
@@ -6,21 +6,30 @@ import { getAllRoomConversation } from '@redux/api-request/room'
 import { chooseRoomFloat } from '@redux/conversationSlice'
 import { Link as ReactRouterLink } from 'react-router-dom'
 import axiosClient from '../../config/axios'
+import EmptyState from '../empty-state'
 
-const ListConversation = () => {
+const ListConversation = ({ isOpen }) => {
   const dispatch = useDispatch()
   const userLogin = useSelector(state => state.auth.authState.user)
   const rooms = useSelector(state => state.room.getAllRoomConversation.rooms)
+  const isFetching = useSelector(state => state.room.getAllRoomConversation.isFetching)
   useEffect(() => {
-    if (userLogin?.id) {
-      getAllRoomConversation(dispatch, userLogin?.id)
-    }
-  }, [userLogin])
+    if (!userLogin?.id || !isOpen) return
+    getAllRoomConversation(dispatch, userLogin?.id)
+  }, [userLogin, isOpen])
   return (
     <WrapContent title="Messages">
-      {rooms?.map((room, index) => {
-        return <Conversation senderId={userLogin?.id} key={room?.id || index} room={room} />
-      })}
+      {isFetching ? (
+        <Box minH="60px" display="flex" alignItems="center" justifyContent="center">
+          <Spinner />
+        </Box>
+      ) : !rooms?.length ? (
+        <EmptyState title="No rooms chat" />
+      ) : (
+        rooms?.map((room, index) => {
+          return <Conversation senderId={userLogin?.id} key={room?.id || index} room={room} />
+        })
+      )}
       <Link as={ReactRouterLink} to="/chat">
         <Text textAlign="center" color={useColorModeValue('blue.500', 'pink.400')}>
           See all in Messager

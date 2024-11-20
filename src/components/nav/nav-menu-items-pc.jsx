@@ -51,16 +51,20 @@ const NavMenuPc = () => {
         <CreatePostModal isOpen={isOpen} onClose={onClose} />
       </Box>
       <Menu placement="bottom">
-        <Tooltip label="message">
-          <MenuButton display={pathname.includes('/chat') ? 'none' : 'block'} _expanded={{ color: 'grassTeal' }}>
-            <MenuItemPc icon={<AiFillMessage />} title="message" />
-          </MenuButton>
-        </Tooltip>
-        <MenuList bg={COLOR_THEME.BG} width={'md'} maxH="60vh">
-          <Box>
-            <ListConversation />
-          </Box>
-        </MenuList>
+        {({ isOpen }) => (
+          <>
+            <Tooltip label="message">
+              <MenuButton display={pathname.includes('/chat') ? 'none' : 'block'} _expanded={{ color: 'grassTeal' }}>
+                <MenuItemPc icon={<AiFillMessage />} title="message" />
+              </MenuButton>
+            </Tooltip>
+            <MenuList bg={COLOR_THEME.BG} width={'md'} maxH="60vh">
+              <Box>
+                <ListConversation isOpen={isOpen} />
+              </Box>
+            </MenuList>
+          </>
+        )}
       </Menu>
       <Menu placement="auto">
         <Tooltip label="account">
