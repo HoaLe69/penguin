@@ -26,12 +26,13 @@ const PostItemWrapper = ({ ...postInfo }) => {
 
   const handleLeaveEmojiPost = useCallback(async () => {
     try {
-      await reactPost(postInfo.id, userLogin?.id)
       if (isUserLoginLikeThisPost) {
         setPostReactionList(pre => pre.filter(l => l !== userLogin?.id))
-        return
+      } else {
+        setPostReactionList(pre => [...pre, userLogin?.id])
       }
-      setPostReactionList(pre => [...pre, userLogin?.id])
+      //visualize delay time on production
+      await reactPost(postInfo.id, userLogin?.id)
     } catch (error) {
       // run toast message here
       console.log(error)
