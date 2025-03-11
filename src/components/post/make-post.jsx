@@ -1,23 +1,12 @@
-import {
-  Box,
-  Heading,
-  Button,
-  Textarea,
-  Input,
-  FormLabel,
-  Image,
-  useColorModeValue,
-  Avatar,
-  useToast
-} from '@chakra-ui/react'
-import { useEffect, useState } from 'react'
-import { MdOutlineCloudUpload } from 'react-icons/md'
+import { Box, Heading, Button, Textarea, Input, FormLabel, useColorModeValue, Avatar, useToast } from '@chakra-ui/react'
+import { useCallback, useEffect, useState } from 'react'
 import { createPost } from '@redux/api-request/posts'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { EmojiKeyboard } from 'reactjs-emoji-keyboard'
 import { FaRegSmile } from 'react-icons/fa'
 import { editPost } from '../../redux/api-request/posts'
+import MediaUpload from './media-upload'
 
 const MakePost = ({ postDataEditMode }) => {
   const toast = useToast()
@@ -25,10 +14,11 @@ const MakePost = ({ postDataEditMode }) => {
   const navigate = useNavigate()
   const isLoading = useSelector(state => state.post.createPost.isFetching)
   const isLoadingEdit = useSelector(state => state.post.editPost.isFetching)
-  const [previewSource, setPreviewSource] = useState(postDataEditMode?.thumbnail || undefined)
+  // const [previewSource, setPreviewSource] = useState(postDataEditMode?.thumbnail || undefined)
   const userLogin = useSelector(state => state.auth.authState.user)
   const [err, setErr] = useState('')
   const [showEmoji, setShowEmoji] = useState(false)
+  const [uploadState, setUploadState] = useState({ file: null, type: null })
 
   const [formData, setFormData] = useState({
     thumbnail: null,
@@ -55,11 +45,12 @@ const MakePost = ({ postDataEditMode }) => {
   }, [err])
   const handleOnChange = e => {
     let { name, value } = e.target
-    if (name === 'image') {
-      const file = e.target.files[0]
-      setFormData(pre => ({ ...pre, thumbnail: file }))
-      previewImage(file)
-    } else if (name === 'tag') {
+    // if (name === 'image') {
+    //   const file = e.target.files[0]
+    //   setFormData(pre => ({ ...pre, thumbnail: file }))
+    //   previewImage(file)
+    // } else
+    if (name === 'tag') {
       setFormData(pre => ({
         ...pre,
         formData: { ...pre.formData, [name]: value }
@@ -71,28 +62,33 @@ const MakePost = ({ postDataEditMode }) => {
       }))
     }
   }
-  const previewImage = file => {
-    const reader = new FileReader()
-    reader.readAsDataURL(file)
-    reader.onloadend = function () {
-      setPreviewSource(reader.result)
-    }
-  }
+  // const previewImage = file => {
+  //   const reader = new FileReader()
+  //   reader.readAsDataURL(file)
+  //   reader.onloadend = function () {
+  //     setPreviewSource(reader.result)
+  //   }
+  // }
+
+  const handleUploadFileState = useCallback(data => {
+    setUploadState(data)
+  }, [])
   const handleSubmit = () => {
     try {
-      if (!formData.thumbnail && formData.formData.description && !postDataEditMode) {
+      if (!uploadState.file && formData.formData.description && !postDataEditMode) {
         setErr('You must upload image')
         return
       }
-      if (!formData.thumbnail && !formData.formData.description) {
+      if (!uploadState.file && !formData.formData.description) {
         setErr('empty post')
         return
       }
       const form = new FormData()
+      formData.formData.fileType = uploadState.type
       const blob = new Blob([JSON.stringify(formData.formData)], {
         type: 'application/json'
       })
-      form.append('thumbnail', formData.thumbnail)
+      form.append('file', uploadState.file)
       form.append('formData', blob)
       if (postDataEditMode) {
         editPost(dispatch, form, postDataEditMode?.id, postDataEditMode?.cloudinaryId, userLogin?.accessToken)
@@ -153,26 +149,28 @@ const MakePost = ({ postDataEditMode }) => {
             </Box>
           </Box>
         </Box>
-        <FormLabel
-          mt={2}
-          htmlFor="input-file"
-          display="inline-flex"
-          alignItems="center"
-          gap="5px"
-          p={2}
-          bg="teal"
-          borderRadius="10px"
-          cursor="pointer"
-          color={useColorModeValue('whiteAlpha.900', 'gray.900')}
-        >
-          {postDataEditMode ? 'Change' : 'Upload'}
-          <MdOutlineCloudUpload />
-          <Input id="input-file" type="file" accept="image/*" name="image" display="none" onChange={handleOnChange} />
-        </FormLabel>
-        <Box display="flex" justifyContent="center">
-          <Image src={previewSource} boxSize="xs" objectFit="cover" />
-        </Box>
+        <MediaUpload isEditMode={postDataEditMode} uploadState={uploadState} onUploadState={handleUploadFileState} />
 
+        {/* <FormLabel */}
+        {/*   mt={2} */}
+        {/*   htmlFor="input-file" */}
+        {/*   display="inline-flex" */}
+        {/*   alignItems="center" */}
+        {/*   gap="5px" */}
+        {/*   p={2} */}
+        {/*   bg="teal" */}
+        {/*   borderRadius="10px" */}
+        {/*   cursor="pointer" */}
+        {/*   color={useColorModeValue('whiteAlpha.900', 'gray.900')} */}
+        {/* > */}
+        {/*   {postDataEditMode ? 'Change' : 'Upload'} */}
+        {/*   <MdOutlineCloudUpload /> */}
+        {/*   <Input id="input-file" type="file" accept="image/*" name="image" display="none" onChange={handleOnChange} /> */}
+        {/* </FormLabel> */}
+        {/* <Box display="flex" justifyContent="center"> */}
+        {/*   <Image src={previewSource} boxSize="xs" objectFit="cover" /> */}
+        {/* </Box> */}
+        {/**/}
         <FormLabel>
           HasTag
           <Input

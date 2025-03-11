@@ -45,7 +45,11 @@ const ProfilePostItem = ({ ...postInfo }) => {
   return (
     <Box position="relative" role="group" cursor="pointer" onClick={handleShowPostModal}>
       <Box height={{ base: '300px', lg: '400px' }}>
-        <Image src={postInfo?.thumbnail} alt={postInfo?.id} height="full" width="full" objectFit="cover" />
+        {postInfo.fileType == 'image' ? (
+          <Image src={postInfo?.thumbnail} alt={postInfo?.id} height="full" width="full" objectFit="cover" />
+        ) : (
+          <video style={{ width: '100%', height: '100%' }} src={postInfo.videoSrc}></video>
+        )}
       </Box>
       <Box
         position="absolute"

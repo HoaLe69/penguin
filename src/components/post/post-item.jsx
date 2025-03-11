@@ -47,7 +47,7 @@ const Post = props => {
   }
 
   const handleDeletePost = useCallback(() => {
-    deletePost(dispatch, postInfo.id, postInfo.cloudinaryId)
+    deletePost(dispatch, postInfo.id, postInfo.cloudinaryId, postInfo.fileType)
   }, [])
 
   return (
@@ -96,6 +96,20 @@ const Post = props => {
       <Box pb={2} pl={2} textAlign="left">
         {postInfo?.tag && <Badge colorScheme="red">{postInfo.tag}</Badge>}
       </Box>
+      {postInfo.videoSrc && (
+        <Box minH="400px" maxH="600px" width="100%" borderRadius="md" overflow="hidden">
+          <video
+            style={{ height: '600px' }}
+            src={postInfo.videoSrc}
+            width="100%"
+            controls
+            playsInline
+            preload="metadata"
+          >
+            Your browser does support the video tag
+          </video>
+        </Box>
+      )}
       {postInfo?.thumbnail && (
         <Box overflow={'hidden'}>
           <Image

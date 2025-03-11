@@ -56,10 +56,10 @@ export const getAllPost = async page => {
 }
 
 //deletePost
-export const deletePost = async (dispatch, id, cloudId) => {
+export const deletePost = async (dispatch, id, cloudId, fileType) => {
   dispatch(deletePostStart())
   try {
-    await axiosClient.delete(`/post/delete/${id}/${cloudId}`)
+    await axiosClient.delete(`/post/delete/${id}/${cloudId}/${fileType}`)
     dispatch(deletePostSuccess(id))
   } catch (err) {
     dispatch(deletePostFailed())
