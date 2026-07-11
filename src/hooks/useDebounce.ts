@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 
-const useDebounce = searchValue => {
-  const [searchOutput, setSearchOutput] = useState(searchValue)
+const useDebounce = <T>(searchValue: T): T => {
+  const [searchOutput, setSearchOutput] = useState<T>(searchValue)
   useEffect(() => {
     const timeId = setTimeout(() => {
       setSearchOutput(searchValue)

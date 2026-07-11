@@ -1,24 +1,28 @@
 import { useState, useEffect } from 'react'
 
+type RefreshCallback = (data?: unknown) => void | Promise<void>
+
 class RefreshEventEmitter {
+  private events: Record<string, RefreshCallback[]>
+
   constructor() {
     this.events = {}
   }
 
-  on(event, callback) {
+  on(event: string, callback: RefreshCallback): void {
     if (!this.events[event]) {
       this.events[event] = []
     }
     this.events[event].push(callback)
   }
 
-  emit(event, data) {
+  emit(event: string, data?: unknown): void {
     if (this.events[event]) {
       this.events[event].forEach(callback => callback(data))
     }
   }
 
-  remove(event, callback) {
+  remove(event: string, callback: RefreshCallback): void {
     if (this.events[event]) {
       this.events[event] = this.events[event].filter(cb => cb !== callback)
     }
@@ -27,8 +31,8 @@ class RefreshEventEmitter {
 
 export const refreshEvents = new RefreshEventEmitter()
 
-const useRefreshable = (componentId, onRefresh) => {
-  const [isRefreshing, setIsRefreshing] = useState(false)
+const useRefreshable = (componentId: string, onRefresh: () => Promise<void> | void): boolean => {
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false)
 
   useEffect(() => {
     const handleRefresh = async () => {
