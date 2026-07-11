@@ -1,16 +1,24 @@
 import { Box, useToast, Heading, Image, Grid, GridItem, useDisclosure } from '@chakra-ui/react'
 import { AiFillHeart } from 'react-icons/ai'
 import { getAllPostUser, reactPost } from '@redux/api-request/posts'
-import { useDispatch, useSelector } from 'react-redux'
+import { useAppDispatch, useAppSelector } from '@redux/hooks'
 import { useEffect, useState, useMemo, useCallback } from 'react'
+import { Post } from '@redux/postSlice'
 import FeedModal from '../modals/feed'
 import { ProfilePostSkeletonLoading } from '../loading'
 
-const ProfilePostItem = ({ ...postInfo }) => {
+// Post['like'] is only covered by postSlice's Post index signature (unknown) today - narrowed
+// here to string[] (list of userIds who reacted) since this component relies on array methods.
+interface PostWithLike extends Post {
+  like?: string[]
+}
+
+function ProfilePostItem(props: PostWithLike) {
+  const postInfo = props
   const { isOpen, onClose, onOpen } = useDisclosure()
   const toast = useToast()
-  const userLogin = useSelector(state => state.auth.authState.user)
-  const [postReactionList, setPostReactionList] = useState(() => postInfo.like)
+  const userLogin = useAppSelector(state => state.auth.authState.user)
+  const [postReactionList, setPostReactionList] = useState<string[] | undefined>(() => postInfo.like)
 
   const handleShowPostModal = useCallback(() => {
     onOpen()
@@ -78,10 +86,15 @@ const ProfilePostItem = ({ ...postInfo }) => {
   )
 }
 
-const ProfilePost = ({ userProfileId }) => {
-  const dispatch = useDispatch()
-  const profilePost = useSelector(state => state.post.getPostUser.posts)
-  const isLoading = useSelector(state => state.post.getPostUser.isFetching)
+interface ProfilePostProps {
+  userProfileId: string
+}
+
+function ProfilePost(props: ProfilePostProps) {
+  const { userProfileId } = props
+  const dispatch = useAppDispatch()
+  const profilePost = useAppSelector(state => state.post.getPostUser.posts)
+  const isLoading = useAppSelector(state => state.post.getPostUser.isFetching)
 
   useEffect(() => {
     getAllPostUser(dispatch, userProfileId)
@@ -94,7 +107,9 @@ const ProfilePost = ({ userProfileId }) => {
         fontSize={'md'}
         textUnderlineOffset={4}
         textDecoration="underline"
-        textDecorationThickness={4}
+        // pre-existing value; Chakra's type only accepts a CSS length string (or 0) here, so cast to
+        // preserve the exact (already invalid-per-CSS-spec, effectively no-op) prior behavior unchanged
+        textDecorationThickness={4 as unknown as string}
         textDecorationColor="gray.500"
       >
         All post
@@ -115,7 +130,7 @@ const ProfilePost = ({ userProfileId }) => {
           {profilePost.map(data => {
             return (
               <GridItem key={data.id}>
-                <ProfilePostItem {...data} />
+                <ProfilePostItem {...(data as PostWithLike)} />
               </GridItem>
             )
           })}

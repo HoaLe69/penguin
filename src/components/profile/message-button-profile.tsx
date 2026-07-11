@@ -1,15 +1,22 @@
 import { Button, Spinner, useToast } from '@chakra-ui/react'
 import { useState } from 'react'
-import { useDispatch } from 'react-redux'
+import { useAppDispatch } from '@redux/hooks'
 import { useNavigate } from 'react-router-dom'
 import axiosClient from '../../config/axios'
-import { getCurrentSelectedRoom } from '../../redux/conversationSlice'
+import { getCurrentSelectedRoom, RoomInfo } from '../../redux/conversationSlice'
+import { User } from '../../redux/authSlice'
 
-const GotoChatButton = ({ member, receiver }) => {
+interface GotoChatButtonProps {
+  member: string[]
+  receiver: User | null | undefined
+}
+
+function GotoChatButton(props: GotoChatButtonProps) {
+  const { member, receiver } = props
   const toast = useToast()
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
-  const dispatch = useDispatch()
+  const dispatch = useAppDispatch()
 
   const [senderId, receiveId] = member
 
@@ -17,11 +24,11 @@ const GotoChatButton = ({ member, receiver }) => {
     try {
       if (senderId && receiveId) {
         setLoading(true)
-        const room = await axiosClient.get(`/conversation/find/${senderId}/${receiveId}`)
+        const room = await axiosClient.get<RoomInfo | null>(`/conversation/find/${senderId}/${receiveId}`)
         if (room?.id) {
           dispatch(getCurrentSelectedRoom({ info: room, receiver }))
         } else {
-          const res = await axiosClient.post(`/conversation/create`, { member: member })
+          const res = await axiosClient.post<RoomInfo>(`/conversation/create`, { member: member })
           dispatch(getCurrentSelectedRoom({ info: res, receiver }))
         }
         navigate('/chat')
