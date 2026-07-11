@@ -7,15 +7,12 @@ import {
   getAllRoomConversationSuccess,
   getAllRoomConversationFailed
 } from '../conversationSlice'
-import axios from 'axios'
-
-const baseUrl = process.env.REACT_APP_API_URL
 
 //create room chat
 export const createRoomChat = async (dispatch, member) => {
   dispatch(createRoomConversationStart())
   try {
-    const res = axiosClient.post(`${baseUrl}/conversation/create`, {
+    const res = await axiosClient.post(`/conversation/create`, {
       member: member
     })
     dispatch(createRoomConversationSuccess(res))
@@ -40,8 +37,8 @@ export const getAllRoomConversation = async (dispatch, id) => {
 // update lastMessage
 export const updateLastestMess = async (id, lastestMessage, accessToken) => {
   try {
-    await axios.patch(
-      `${baseUrl}/conversation/update/lastestMessage/${id}`,
+    await axiosClient.patch(
+      `/conversation/update/lastestMessage/${id}`,
       { lastestMessage: lastestMessage },
       { headers: { Authorization: `Bearer ${accessToken}` } }
     )

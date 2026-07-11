@@ -1,39 +1,69 @@
-import { createSlice } from '@reduxjs/toolkit'
+import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { User } from './authSlice'
+
+export interface UserState {
+  userProfile: {
+    isFetching: boolean
+    info: User | null
+    error: boolean
+  }
+  updateUser: {
+    isFetching: boolean
+    error: boolean
+  }
+  followOtherUser: {
+    isFetching: boolean
+    error: boolean
+    user: User | Record<string, never>
+  }
+  getListUserFollowing: {
+    isFetching: boolean
+    error: boolean
+    listFollowing: User[]
+  }
+  getListUserFollower: {
+    isFetching: boolean
+    error: boolean
+    listFollower: User[]
+  }
+}
+
+const initialState: UserState = {
+  userProfile: {
+    isFetching: false,
+    info: null,
+    error: false
+  },
+  updateUser: {
+    isFetching: false,
+    error: false
+  },
+  followOtherUser: {
+    isFetching: false,
+    error: false,
+    user: {}
+  },
+  getListUserFollowing: {
+    isFetching: false,
+    error: false,
+    listFollowing: []
+  },
+  getListUserFollower: {
+    isFetching: false,
+    error: false,
+    listFollower: []
+  }
+}
 
 const userSlice = createSlice({
   name: 'user',
-  initialState: {
-    userProfile: {
-      isFetching: false,
-      info: null,
-      error: false
-    },
-    updateUser: {
-      isFetching: false,
-      error: false
-    },
-    followOtherUser: {
-      isFetching: false,
-      error: false,
-      user: {}
-    },
-    getListUserFollowing: {
-      isFetching: false,
-      error: false,
-      listFollowing: []
-    },
-    getListUserFollower: {
-      isFetching: false,
-      error: false,
-      listFollower: []
-    }
-  },
+  initialState,
   reducers: {
     getUserProfileStart: state => {
       state.userProfile.isFetching = true
       state.userProfile.error = false
     },
-    getUserProfileSuccess: (state, action) => {
+    getUserProfileSuccess: (state, action: PayloadAction<User>) => {
       state.userProfile.isFetching = false
       state.userProfile.info = action.payload
       state.userProfile.error = false
@@ -46,7 +76,7 @@ const userSlice = createSlice({
     updateUserStart: state => {
       state.updateUser.isFetching = true
     },
-    updateUserSuccess: (state, action) => {
+    updateUserSuccess: (state, action: PayloadAction<User>) => {
       state.updateUser.isFetching = false
       state.updateUser.error = false
       state.userProfile.info = action.payload
@@ -58,7 +88,7 @@ const userSlice = createSlice({
     followOtherUserStart: state => {
       state.followOtherUser.isFetching = true
     },
-    followOtherUserSuccess: (state, action) => {
+    followOtherUserSuccess: (state, action: PayloadAction<User>) => {
       state.followOtherUser.isFetching = false
       state.followOtherUser.error = false
       state.followOtherUser.user = action.payload
@@ -70,7 +100,7 @@ const userSlice = createSlice({
     getListUserFollowingStart: state => {
       state.getListUserFollowing.isFetching = true
     },
-    getListUserFollowingSuccess: (state, action) => {
+    getListUserFollowingSuccess: (state, action: PayloadAction<User[]>) => {
       state.getListUserFollowing.isFetching = false
       state.getListUserFollowing.listFollowing = action.payload
       state.getListUserFollowing.error = false
@@ -82,7 +112,7 @@ const userSlice = createSlice({
     getListUserFollowerStart: state => {
       state.getListUserFollower.isFetching = true
     },
-    getListUserFollowerSuccess: (state, action) => {
+    getListUserFollowerSuccess: (state, action: PayloadAction<User[]>) => {
       state.getListUserFollower.isFetching = false
       state.getListUserFollower.listFollower = action.payload
       state.getListUserFollower.error = false

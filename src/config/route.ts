@@ -1,4 +1,4 @@
-const route = {
+const route: Record<string, string> = {
   home: '/',
   profile: '/profile/:id',
   search: '/explore',

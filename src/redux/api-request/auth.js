@@ -1,10 +1,7 @@
 import { loginStart, loginFailed, loginSuccess, registerStart, registerSuccess, registerFailed } from '../authSlice'
 import route from '@config/route'
-import { config } from './configAxiosHeader'
 import axios from 'axios'
 import axiosClient, { axiosPublic } from '../../config/axios'
-
-const baseUrl = process.env.REACT_APP_API_URL
 
 export const login = async (dispatch, navigate, formData) => {
   dispatch(loginStart())
@@ -33,7 +30,7 @@ export const authWithSocial = async formData => {
 export const register = async (dispatch, navigate, formData) => {
   dispatch(registerStart())
   try {
-    await axios.post(`${baseUrl}/auth/register`, formData, config)
+    await axiosPublic.post('/auth/register', formData)
     dispatch(registerSuccess())
   } catch (err) {
     console.log(err)

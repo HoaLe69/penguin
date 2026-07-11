@@ -1,36 +1,79 @@
-import { createSlice } from '@reduxjs/toolkit'
+import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+
+export interface RoomMember {
+  id: string
+  displayName?: string
+  avatar?: string
+  [key: string]: unknown
+}
+
+export interface RoomInfo {
+  id: string
+  [key: string]: unknown
+}
+
+export interface SelectedRoom {
+  info: RoomInfo
+  receiver: RoomMember
+}
+
+export interface ConversationState {
+  selectedRoom: {
+    info: RoomInfo | null
+    receiver: RoomMember | null
+  }
+  getLastestMessage: {
+    lastestMessage: unknown
+    roomId: string | undefined
+  }
+  createRoomConversation: {
+    isFetching: boolean
+    error: boolean
+    room: unknown
+  }
+  getAllRoomConversation: {
+    isFetching: boolean
+    error: boolean
+    rooms: unknown[]
+  }
+  roomFloatSelect: {
+    rooms: SelectedRoom[]
+  }
+}
+
+const initialState: ConversationState = {
+  selectedRoom: {
+    info: null,
+    receiver: null
+  },
+  getLastestMessage: {
+    lastestMessage: undefined,
+    roomId: undefined
+  },
+  createRoomConversation: {
+    isFetching: false,
+    error: false,
+    room: {}
+  },
+  getAllRoomConversation: {
+    isFetching: false,
+    error: false,
+    rooms: []
+  },
+  roomFloatSelect: {
+    rooms: []
+  }
+}
 
 const conversationSlice = createSlice({
   name: 'roomConversation',
-  initialState: {
-    selectedRoom: {
-      info: null,
-      receiver: null
-    },
-    getLastestMessage: {
-      lastestMessage: undefined,
-      roomId: undefined
-    },
-    createRoomConversation: {
-      isFetching: false,
-      error: false,
-      room: {}
-    },
-    getAllRoomConversation: {
-      isFetching: false,
-      error: false,
-      rooms: []
-    },
-    roomFloatSelect: {
-      rooms: []
-    }
-  },
+  initialState,
   reducers: {
-    getCurrentSelectedRoom: (state, action) => {
+    getCurrentSelectedRoom: (state, action: PayloadAction<SelectedRoom>) => {
       state.selectedRoom.info = action.payload.info
       state.selectedRoom.receiver = action.payload.receiver
     },
-    chooseRoomFloat: (state, action) => {
+    chooseRoomFloat: (state, action: PayloadAction<SelectedRoom>) => {
       const isOpened = state.roomFloatSelect.rooms.some(room => {
         return room?.info.id === action.payload.info.id
       })
@@ -42,19 +85,19 @@ const conversationSlice = createSlice({
         else state.roomFloatSelect.rooms = [action.payload, ...state.roomFloatSelect.rooms]
       }
     },
-    closeRoomFloat: (state, action) => {
+    closeRoomFloat: (state, action: PayloadAction<string>) => {
       state.roomFloatSelect.rooms = state.roomFloatSelect.rooms.filter(room => {
         return room.info.id !== action.payload
       })
     },
-    getLastestMessage: (state, action) => {
+    getLastestMessage: (state, action: PayloadAction<{ mess: unknown; id: string }>) => {
       state.getLastestMessage.lastestMessage = action.payload.mess
       state.getLastestMessage.roomId = action.payload.id
     },
     createRoomConversationStart: state => {
       state.createRoomConversation.isFetching = true
     },
-    createRoomConversationSuccess: (state, action) => {
+    createRoomConversationSuccess: (state, action: PayloadAction<unknown>) => {
       state.createRoomConversation.isFetching = false
       state.createRoomConversation.room = action.payload
       state.createRoomConversation.error = false
@@ -67,7 +110,7 @@ const conversationSlice = createSlice({
       state.getAllRoomConversation.isFetching = true
     },
 
-    getAllRoomConversationSuccess: (state, action) => {
+    getAllRoomConversationSuccess: (state, action: PayloadAction<unknown[]>) => {
       state.getAllRoomConversation.isFetching = false
       state.getAllRoomConversation.rooms = action.payload
       state.getAllRoomConversation.error = false

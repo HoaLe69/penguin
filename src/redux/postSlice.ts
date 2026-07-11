@@ -1,45 +1,102 @@
-import { createSlice } from '@reduxjs/toolkit'
+import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+
+export interface Post {
+  id: string
+  userId: string
+  displayName?: string
+  photoUrl?: string
+  description?: string
+  tag?: string
+  fileType?: string
+  cloudinaryId?: string
+  videoSrc?: string
+  thumbnail?: string
+  createAt?: string
+  comments?: unknown[]
+  [key: string]: unknown
+}
+
+export interface PostState {
+  currentPostInfor: {
+    post: Post | Record<string, never>
+  }
+  createPost: {
+    isFetching: boolean
+    error: boolean
+    success: boolean
+    post: Post | null
+  }
+  deletePost: {
+    isFetching: boolean
+    success: boolean
+    error: boolean
+    id: string | null
+  }
+  getPostUser: {
+    isFetching: boolean
+    error: boolean
+    posts: Post[]
+  }
+  getPostById: {
+    isFetching: boolean
+    error: boolean
+    post: Post | Record<string, never>
+  }
+  allPostFromUser: {
+    isFetching: boolean
+    error: boolean
+    posts: Post[]
+  }
+  editPost: {
+    isFetching: boolean
+    error: boolean
+    success: boolean
+    post: Post | null
+  }
+}
+
+const initialState: PostState = {
+  currentPostInfor: {
+    post: {}
+  },
+  createPost: {
+    isFetching: false,
+    error: false,
+    success: false,
+    post: null
+  },
+  deletePost: {
+    isFetching: false,
+    success: false,
+    error: false,
+    id: null
+  },
+  getPostUser: {
+    isFetching: false,
+    error: false,
+    posts: []
+  },
+  getPostById: {
+    isFetching: false,
+    error: false,
+    post: {}
+  },
+  allPostFromUser: {
+    isFetching: false,
+    error: false,
+    posts: []
+  },
+  editPost: {
+    isFetching: false,
+    error: false,
+    success: false,
+    post: null
+  }
+}
 
 export const postSlice = createSlice({
   name: 'posts',
-  initialState: {
-    currentPostInfor: {
-      post: {}
-    },
-    createPost: {
-      isFetching: false,
-      error: false,
-      success: false,
-      post: null
-    },
-    deletePost: {
-      isFetching: false,
-      success: false,
-      error: false,
-      id: null
-    },
-    getPostUser: {
-      isFetching: false,
-      error: false,
-      posts: []
-    },
-    getPostById: {
-      isFetching: false,
-      error: false,
-      post: {}
-    },
-    allPostFromUser: {
-      isFetching: false,
-      error: false,
-      posts: []
-    },
-    editPost: {
-      isFetching: false,
-      error: false,
-      success: false,
-      post: null
-    }
-  },
+  initialState,
   reducers: {
     resetStatus: state => {
       state.createPost.success = false
@@ -51,7 +108,7 @@ export const postSlice = createSlice({
     editPostStart: state => {
       state.editPost.isFetching = true
     },
-    editPostSuccess: (state, action) => {
+    editPostSuccess: (state, action: PayloadAction<Post>) => {
       state.editPost.error = false
       state.editPost.isFetching = false
       state.editPost.success = true
@@ -62,13 +119,13 @@ export const postSlice = createSlice({
       state.editPost.success = false
       state.editPost.isFetching = false
     },
-    getCurrentPostInfor: (state, action) => {
+    getCurrentPostInfor: (state, action: PayloadAction<Post>) => {
       state.currentPostInfor.post = action.payload
     },
     getAllPostUserStart: state => {
       state.allPostFromUser.isFetching = true
     },
-    getAllPostUserSuccess: (state, action) => {
+    getAllPostUserSuccess: (state, action: PayloadAction<Post[]>) => {
       state.allPostFromUser.isFetching = false
       state.allPostFromUser.error = false
       state.allPostFromUser.posts = [...action.payload]
@@ -80,7 +137,7 @@ export const postSlice = createSlice({
     createPostStart: state => {
       state.createPost.isFetching = true
     },
-    createPostSuccess: (state, action) => {
+    createPostSuccess: (state, action: PayloadAction<Post>) => {
       state.createPost.isFetching = false
       state.createPost.success = true
       state.createPost.post = action.payload
@@ -95,7 +152,7 @@ export const postSlice = createSlice({
     deletePostStart: state => {
       state.deletePost.isFetching = true
     },
-    deletePostSuccess: (state, action) => {
+    deletePostSuccess: (state, action: PayloadAction<string>) => {
       state.deletePost.isFetching = false
       state.deletePost.error = false
       state.deletePost.id = action.payload
@@ -111,7 +168,7 @@ export const postSlice = createSlice({
     getPostUserStart: state => {
       state.getPostUser.isFetching = true
     },
-    getPostUserSuccess: (state, action) => {
+    getPostUserSuccess: (state, action: PayloadAction<Post[]>) => {
       state.getPostUser.isFetching = false
       state.getPostUser.posts = action.payload
       state.getPostUser.error = false
@@ -123,7 +180,7 @@ export const postSlice = createSlice({
     getPostByIdStart: state => {
       state.getPostById.isFetching = true
     },
-    getPostByIdSuccess: (state, action) => {
+    getPostByIdSuccess: (state, action: PayloadAction<Post>) => {
       state.getPostById.isFetching = false
       state.getPostById.post = action.payload
       state.getPostById.error = false

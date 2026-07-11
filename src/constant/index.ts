@@ -1,13 +1,13 @@
 import { useColorModeValue } from '@chakra-ui/react'
 
 export const COLOR_THEME = {
-  BG: () => {
+  BG: (): string => {
     return useColorModeValue('#fff', 'gray.700')
   },
-  BG_BUTTON: () => {
+  BG_BUTTON: (): string => {
     return useColorModeValue('whiteAlpha.500', 'whiteAlpha.200')
   },
-  BORDER: () => {
+  BORDER: (): string => {
     return useColorModeValue('blackAlpha.300', 'whiteAlpha.300')
   }
 }
