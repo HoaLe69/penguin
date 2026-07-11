@@ -14,26 +14,36 @@ import {
 import { Link as ReacRouterLink } from 'react-router-dom'
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { getListFollowing } from '../../redux/api-request/user'
+import { getListFollower } from '@redux/api-request/user'
+import { RootState } from '../../redux/store'
+import { User } from '../../redux/authSlice'
 
-const ListFollowingModal = ({ isOpen, onClose, listsUserIdFollowing }) => {
+interface ListFollowerModalProps {
+  isOpen: boolean
+  onClose: () => void
+  listsUserIdFollower?: string[]
+}
+
+function ListFollowerModal(props: ListFollowerModalProps) {
+  const { isOpen, onClose, listsUserIdFollower } = props
   const dispatch = useDispatch()
-  const listsFollowing = useSelector(state => state.user.getListUserFollowing?.listFollowing)
+  const listFollower = useSelector((state: RootState) => state.user.getListUserFollower?.listFollower)
 
   useEffect(() => {
     if (!isOpen) return
-    if (listsUserIdFollowing) {
-      getListFollowing(dispatch, listsUserIdFollowing)
+    if (listsUserIdFollower) {
+      getListFollower(dispatch, listsUserIdFollower)
     }
-  }, [dispatch, isOpen])
+  }, [dispatch, isOpen, listsUserIdFollower])
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="sm">
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Following</ModalHeader>
+        <ModalHeader>Follower</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          {listsFollowing?.map(user => {
+          {listFollower?.map(user => {
             return <UserItem onClose={onClose} user={user} key={user?.id} />
           })}
         </ModalBody>
@@ -42,7 +52,13 @@ const ListFollowingModal = ({ isOpen, onClose, listsUserIdFollowing }) => {
   )
 }
 
-const UserItem = ({ user, onClose }) => {
+interface UserItemProps {
+  user: User
+  onClose: () => void
+}
+
+function UserItem(props: UserItemProps) {
+  const { user, onClose } = props
   return (
     <Link _hover={{ textDecoration: 'none' }} onClick={onClose} as={ReacRouterLink} to={`/profile/${user?.id}`}>
       <HStack
@@ -53,7 +69,7 @@ const UserItem = ({ user, onClose }) => {
           backgroundColor: `${useColorModeValue('blackAlpha.200', 'whiteAlpha.300')}`
         }}
       >
-        <Avatar src={user?.avatar} alt={user?.displayName} />
+        <Avatar src={user?.avatar} name={user?.displayName} />
         <Heading as="h4" fontSize="14px">
           {user?.displayName}
         </Heading>
@@ -62,4 +78,4 @@ const UserItem = ({ user, onClose }) => {
   )
 }
 
-export default ListFollowingModal
+export default ListFollowerModal

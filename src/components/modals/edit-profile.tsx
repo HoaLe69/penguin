@@ -18,12 +18,23 @@ import {
 import { useSelector, useDispatch } from 'react-redux'
 import { useFormik } from 'formik'
 import { updateUser } from '../../redux/api-request/user'
+import { RootState } from '../../redux/store'
 
-const EditProfileModal = ({ isOpen, onClose }) => {
+interface EditProfileValues {
+  about: string
+}
+
+interface EditProfileModalProps {
+  isOpen: boolean
+  onClose: () => void
+}
+
+function EditProfileModal(props: EditProfileModalProps) {
+  const { isOpen, onClose } = props
   const dispatch = useDispatch()
-  const userLogin = useSelector(state => state.auth.authState.user)
-  const isLoading = useSelector(state => state.user.updateUser.isFetching)
-  const formik = useFormik({
+  const userLogin = useSelector((state: RootState) => state.auth.authState.user)
+  const isLoading = useSelector((state: RootState) => state.user.updateUser.isFetching)
+  const formik = useFormik<EditProfileValues>({
     initialValues: {
       about: ''
     },
@@ -57,7 +68,6 @@ const EditProfileModal = ({ isOpen, onClose }) => {
                 <Textarea
                   onChange={formik.handleChange}
                   value={formik.values.about}
-                  type="text"
                   name="about"
                   id="about"
                   placeholder="Enter your about..."
