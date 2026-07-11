@@ -1,6 +1,16 @@
-import { Avatar, Box, Heading, Text, Button, useColorModeValue, useDisclosure, HStack } from '@chakra-ui/react'
+import {
+  Avatar,
+  Box,
+  BoxProps,
+  Heading,
+  Text,
+  Button,
+  useColorModeValue,
+  useDisclosure,
+  HStack
+} from '@chakra-ui/react'
 import EditProfileModal from '@components/modals/edit-profile'
-import { useDispatch, useSelector } from 'react-redux'
+import { useAppDispatch, useAppSelector } from '@redux/hooks'
 import { useEffect } from 'react'
 import { followOtherUser, getUserProfile } from '@redux/api-request/user'
 import ListFollowingModal from '../modals/following'
@@ -8,7 +18,13 @@ import ListFollowerModal from '../modals/follower'
 import GotoChatButton from './message-button-profile'
 import { ProfileHeaderSkeletonLoading } from '../loading'
 
-const Details = ({ title, quantity, onClick, ...props }) => {
+interface DetailsProps extends BoxProps {
+  title: string
+  quantity?: number
+}
+
+function Details(props: DetailsProps) {
+  const { title, quantity, onClick, ...rest } = props
   return (
     <Box
       display="flex"
@@ -18,7 +34,7 @@ const Details = ({ title, quantity, onClick, ...props }) => {
       cursor="pointer"
       fontSize="16px"
       onClick={onClick}
-      {...props}
+      {...rest}
     >
       <Text fontWeight="bold">{quantity}</Text>
       <Text>{title}</Text>
@@ -26,15 +42,20 @@ const Details = ({ title, quantity, onClick, ...props }) => {
   )
 }
 
-const ProfileHeader = ({ userProfileId }) => {
-  const dispatch = useDispatch()
+interface ProfileHeaderProps {
+  userProfileId: string
+}
+
+function ProfileHeader(props: ProfileHeaderProps) {
+  const { userProfileId } = props
+  const dispatch = useAppDispatch()
   const { isOpen, onOpen, onClose } = useDisclosure()
 
-  const userProfile = useSelector(state => state.user.userProfile?.info)
-  const isFetchingUserProfile = useSelector(state => state.user.userProfile?.isFetching)
-  const isLoadingFollow = useSelector(state => state.user.followOtherUser.isFetching)
-  const userLogin = useSelector(state => state.auth.authState.user)
-  const quantityPost = useSelector(state => state.post.getPostUser?.posts).length
+  const userProfile = useAppSelector(state => state.user.userProfile?.info)
+  const isFetchingUserProfile = useAppSelector(state => state.user.userProfile?.isFetching)
+  const isLoadingFollow = useAppSelector(state => state.user.followOtherUser.isFetching)
+  const userLogin = useAppSelector(state => state.auth.authState.user)
+  const quantityPost = useAppSelector(state => state.post.getPostUser?.posts).length
 
   useEffect(() => {
     getUserProfile(dispatch, userProfileId)
@@ -81,7 +102,11 @@ const ProfileHeader = ({ userProfileId }) => {
                   <Button colorScheme="teal" onClick={onOpen}>
                     Edit profile
                   </Button>
-                  <EditProfileModal isOpen={isOpen} user={userProfile} onClose={onClose} />
+                  {/* EditProfileModal is still an untyped .jsx file (out of scope for this ticket) whose
+                  inferred prop type only covers isOpen/onClose - it ignores `user` at runtime (reads the
+                  logged-in user from Redux itself), so passing it is already a no-op. Cast keeps the existing
+                  call site (and its runtime behavior) unchanged while satisfying the type checker. */}
+                  <EditProfileModal {...({ isOpen, user: userProfile, onClose } as any)} />
                 </Box>
               ) : (
                 <Box mt={2}>
@@ -98,7 +123,10 @@ const ProfileHeader = ({ userProfileId }) => {
               <Following following={userProfile?.following} />
             </Box>
             <Box p={2} fontSize="14px" color={aboutTextColor}>
-              {userProfile?.about}
+              {/* `about` isn't declared on the shared User interface (userSlice/authSlice only expose it via
+              the catch-all `[key: string]: unknown` index signature) - cast to string here rather than
+              widening the shared type for one read-only usage. */}
+              {userProfile?.about as string}
             </Box>
           </Box>
         </Box>
@@ -107,7 +135,12 @@ const ProfileHeader = ({ userProfileId }) => {
   )
 }
 
-const Following = ({ following }) => {
+interface FollowingProps {
+  following?: string[]
+}
+
+function Following(props: FollowingProps) {
+  const { following } = props
   const { isOpen: isOpenFollowing, onClose: onCloseFollowingModal, onOpen: onOpenFollowingModal } = useDisclosure()
   return (
     <Box>
@@ -117,7 +150,12 @@ const Following = ({ following }) => {
   )
 }
 
-const Follower = ({ follower }) => {
+interface FollowerProps {
+  follower?: string[]
+}
+
+function Follower(props: FollowerProps) {
+  const { follower } = props
   const { isOpen: isOpenFollower, onClose: onCloseFollowerModal, onOpen: onOpenFollowerModal } = useDisclosure()
   return (
     <Box>
