@@ -1,4 +1,4 @@
-const GoogleIcon = () => {
+function GoogleIcon() {
   return (
     <svg width="25" height="25" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect width="24" height="24" transform="translate(0.845947 0.537109)" fill="none" />

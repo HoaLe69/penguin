@@ -1,9 +1,15 @@
+import { ReactNode } from 'react'
 import { Box, Link, Heading } from '@chakra-ui/react'
 import { Link as ReactRouterLink } from 'react-router-dom'
 import { AiOutlineLeft } from 'react-icons/ai'
 import route from '@config/route'
 
-const WrapContent = ({ children, title }) => {
+interface WrapContentProps {
+  children: ReactNode
+  title: string
+}
+
+function WrapContent({ children, title }: WrapContentProps) {
   return (
     <Box>
       <Box as="header" pt={2} px={{ lg: 2 }} display="flex" alignItems="center">
