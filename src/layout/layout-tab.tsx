@@ -1,7 +1,14 @@
+import { ReactNode } from 'react'
 import LayoutFull from './layout-full'
 import { Box, Text } from '@chakra-ui/react'
 import { useLocation, Link } from 'react-router-dom'
-const TabItems = ({ title, path }) => {
+
+interface TabItemsProps {
+  title: string
+  path: string
+}
+
+const TabItems = ({ title, path }: TabItemsProps) => {
   const { pathname } = useLocation()
   const active = pathname === path
   return (
@@ -19,7 +26,12 @@ const TabItems = ({ title, path }) => {
     </Link>
   )
 }
-const LayoutTab = ({ children }) => {
+
+interface LayoutTabProps {
+  children: ReactNode
+}
+
+function LayoutTab({ children }: LayoutTabProps) {
   const tabs = [
     { path: '/', title: 'HOT🔥' },
     { path: '/news', title: 'NEWS' },
