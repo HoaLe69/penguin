@@ -1,3 +1,4 @@
+import { Dispatch } from '@reduxjs/toolkit'
 import {
   updateUserStart,
   updateUserSuccess,
@@ -15,24 +16,31 @@ import {
   getUserProfileFailure
 } from '../userSlice'
 import axiosClient from '../../config/axios'
-import { updateUserLoginFollowingList, verifyUserFailure, verifyUserSuccess } from '../authSlice'
+import { updateUserLoginFollowingList, verifyUserFailure, verifyUserSuccess, User } from '../authSlice'
 
-export const verifyUser = async dispatch => {
+export interface UpdateUserPayload {
+  id: string
+  [key: string]: unknown
+}
+
+// verify current session user
+export const verifyUser = async (dispatch: Dispatch): Promise<User | undefined> => {
   try {
-    const user = await axiosClient.get('/user/verify')
+    const user = await axiosClient.get<User>('/user/verify')
     dispatch(verifyUserSuccess(user))
     return user
   } catch (error) {
     console.log(error)
     dispatch(verifyUserFailure())
+    return undefined
   }
 }
 
 // get user profile
-export const getUserProfile = async (dispatch, userId) => {
+export const getUserProfile = async (dispatch: Dispatch, userId: string): Promise<void> => {
   dispatch(getUserProfileStart())
   try {
-    const res = await axiosClient.get(`/user/${userId}`)
+    const res = await axiosClient.get<User>(`/user/${userId}`)
     dispatch(getUserProfileSuccess(res))
   } catch (err) {
     console.log(err)
@@ -41,10 +49,10 @@ export const getUserProfile = async (dispatch, userId) => {
 }
 
 //update current user
-export const updateUser = async (dispatch, updateInfo) => {
+export const updateUser = async (dispatch: Dispatch, updateInfo: UpdateUserPayload): Promise<void> => {
   dispatch(updateUserStart())
   try {
-    const res = await axiosClient.patch(`/user/update/${updateInfo.id}`, updateInfo)
+    const res = await axiosClient.patch<User>(`/user/update/${updateInfo.id}`, updateInfo)
     dispatch(updateUserSuccess(res))
   } catch (err) {
     console.log(err)
@@ -53,10 +61,10 @@ export const updateUser = async (dispatch, updateInfo) => {
 }
 
 //follow orther user
-export const followOtherUser = async (dispatch, friendId, userLoginId) => {
+export const followOtherUser = async (dispatch: Dispatch, friendId: string, userLoginId: string): Promise<void> => {
   dispatch(followOtherUserStart())
   try {
-    const res = await axiosClient.patch(`/user/interactive/${friendId}`, { id: userLoginId })
+    const res = await axiosClient.patch<User>(`/user/interactive/${friendId}`, { id: userLoginId })
     const listFollowerOfCurrentUserProfile = res?.follower
 
     //userlogin start to follow this user
@@ -74,11 +82,10 @@ export const followOtherUser = async (dispatch, friendId, userLoginId) => {
 }
 
 // get list following
-
-export const getListFollowing = async (dispatch, listIdUser) => {
+export const getListFollowing = async (dispatch: Dispatch, listIdUser: string[]): Promise<void> => {
   dispatch(getListUserFollowingStart())
   try {
-    const res = await axiosClient.post(`/user/getUserFollow`, { list: listIdUser })
+    const res = await axiosClient.post<User[]>(`/user/getUserFollow`, { list: listIdUser })
     dispatch(getListUserFollowingSuccess(res))
   } catch (err) {
     console.log(err)
@@ -87,10 +94,10 @@ export const getListFollowing = async (dispatch, listIdUser) => {
 }
 
 // get list follower
-export const getListFollower = async (dispatch, listIdUser) => {
+export const getListFollower = async (dispatch: Dispatch, listIdUser: string[]): Promise<void> => {
   dispatch(getListUserFollowerStart())
   try {
-    const res = await axiosClient.post(`/user/getUserFollow`, { list: listIdUser })
+    const res = await axiosClient.post<User[]>(`/user/getUserFollow`, { list: listIdUser })
     dispatch(getListUserFollowerSuccess(res))
   } catch (err) {
     console.log(err)
