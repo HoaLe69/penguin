@@ -2,9 +2,13 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import SockJS from 'sockjs-client'
 import { Client } from '@stomp/stompjs'
 
-export const useStompClient = (topic, id, onMessageReceived) => {
+export const useStompClient = <T = unknown>(
+  topic: string,
+  id: string | undefined,
+  onMessageReceived?: (msg: T) => void
+) => {
   const [isConnected, setIsConnected] = useState(false)
-  const clientRef = useRef(null)
+  const clientRef = useRef<Client | null>(null)
 
   useEffect(() => {
     if (!id) return
@@ -19,7 +23,7 @@ export const useStompClient = (topic, id, onMessageReceived) => {
       setIsConnected(true)
       client.subscribe(`${topic}/${id}`, message => {
         if (onMessageReceived) {
-          onMessageReceived(JSON.parse(message.body))
+          onMessageReceived(JSON.parse(message.body) as T)
         }
       })
     }
@@ -44,7 +48,7 @@ export const useStompClient = (topic, id, onMessageReceived) => {
   }, [id, onMessageReceived])
 
   const sendMessage = useCallback(
-    (destination, message) => {
+    <M = T>(destination: string, message: M) => {
       if (clientRef.current && isConnected) {
         clientRef.current.publish({ destination, body: JSON.stringify(message) })
       } else {
