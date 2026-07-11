@@ -1,27 +1,55 @@
-import { createSlice, current } from '@reduxjs/toolkit'
+import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+
+export interface User {
+  id: string
+  displayName?: string
+  email?: string
+  avatar?: string
+  following: string[]
+  follower?: string[]
+  [key: string]: unknown
+}
+
+interface RequestState {
+  isFetching: boolean
+  success?: boolean
+  error: boolean
+  message?: string | null
+}
+
+export interface AuthState {
+  authState: {
+    user: User | null
+    isAuthenticated: boolean | null
+  }
+  loginState: RequestState
+  register: RequestState
+}
+
+const initialState: AuthState = {
+  authState: {
+    user: null,
+    isAuthenticated: null
+  },
+  loginState: {
+    isFetching: false,
+    success: false,
+    error: false,
+    message: null
+  },
+  register: {
+    isFetching: false,
+    success: false,
+    error: false,
+    message: null
+  }
+}
 
 export const authSlice = createSlice({
   name: 'auth',
-  initialState: {
-    authState: {
-      user: null,
-      isAuthenticated: null
-    },
-    loginState: {
-      isFetching: false,
-      success: false,
-      error: false,
-      message: null
-    },
-    register: {
-      isFetching: false,
-      success: false,
-      error: false,
-      message: null
-    }
-  },
+  initialState,
   reducers: {
-    verifyUserSuccess: (state, action) => {
+    verifyUserSuccess: (state, action: PayloadAction<User>) => {
       state.authState.user = action.payload
       state.authState.isAuthenticated = true
     },
@@ -29,9 +57,13 @@ export const authSlice = createSlice({
       state.authState.user = null
       state.authState.isAuthenticated = false
     },
-    updateUserLoginFollowingList: (state, action) => {
+    updateUserLoginFollowingList: (
+      state,
+      action: PayloadAction<{ actions: 'follow' | 'unfollow'; userFollowId: string }>
+    ) => {
       const { actions, userFollowId } = action.payload
       const currentUserLoginInfo = state.authState.user
+      if (!currentUserLoginInfo) return
       const currentUserLoginFollowingList =
         actions === 'follow'
           ? [...currentUserLoginInfo.following, userFollowId]
@@ -52,7 +84,7 @@ export const authSlice = createSlice({
       state.loginState.success = true
       state.loginState.message = null
     },
-    loginFailed: (state, action) => {
+    loginFailed: (state, action: PayloadAction<string>) => {
       state.loginState.error = true
       state.loginState.isFetching = false
       state.loginState.message = action.payload
@@ -64,7 +96,7 @@ export const authSlice = createSlice({
       state.register.isFetching = false
       state.register.success = true
     },
-    registerFailed: (state, action) => {
+    registerFailed: (state, action: PayloadAction<string>) => {
       state.register.error = true
       state.register.isFetching = false
       state.register.message = action.payload
