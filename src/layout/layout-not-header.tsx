@@ -1,7 +1,12 @@
+import { ReactNode } from 'react'
 import NavBot from '@components/nav/nav-bot'
-import { Box, Container } from '@chakra-ui/react'
+import { Box, BoxProps, Container } from '@chakra-ui/react'
 
-const LayoutNotHeader = ({ children, ...props }) => {
+interface LayoutNotHeaderProps extends BoxProps {
+  children: ReactNode
+}
+
+function LayoutNotHeader({ children, ...props }: LayoutNotHeaderProps) {
   return (
     <Box {...props} overflow="hidden" height="100vh" overflowY="overlay">
       <Container maxW={'container.lg'} pb={20} px={0}>
