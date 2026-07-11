@@ -1,18 +1,27 @@
 import { useColorModeValue, Heading, Text, Flex, Box, Avatar, Link, Spinner } from '@chakra-ui/react'
 import WrapContent from '@components/common/wrap-content'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useSelector, useDispatch } from 'react-redux'
+import { useAppDispatch, useAppSelector } from '@redux/hooks'
 import { getAllRoomConversation } from '@redux/api-request/room'
-import { chooseRoomFloat } from '@redux/conversationSlice'
+import { chooseRoomFloat, RoomInfo, RoomMember } from '@redux/conversationSlice'
 import { Link as ReactRouterLink } from 'react-router-dom'
 import axiosClient from '../../config/axios'
 import EmptyState from '../empty-state'
 
-const ListConversation = ({ isOpen }) => {
-  const dispatch = useDispatch()
-  const userLogin = useSelector(state => state.auth.authState.user)
-  const rooms = useSelector(state => state.room.getAllRoomConversation.rooms)
-  const isFetching = useSelector(state => state.room.getAllRoomConversation.isFetching)
+interface ListConversationProps {
+  isOpen: boolean
+}
+
+interface ConversationProps {
+  room: RoomInfo
+  senderId: string | undefined
+}
+
+const ListConversation = ({ isOpen }: ListConversationProps) => {
+  const dispatch = useAppDispatch()
+  const userLogin = useAppSelector(state => state.auth.authState.user)
+  const rooms = useAppSelector(state => state.room.getAllRoomConversation.rooms)
+  const isFetching = useAppSelector(state => state.room.getAllRoomConversation.isFetching)
   useEffect(() => {
     if (!userLogin?.id || !isOpen) return
     getAllRoomConversation(dispatch, userLogin?.id)
@@ -39,9 +48,9 @@ const ListConversation = ({ isOpen }) => {
   )
 }
 
-const Conversation = ({ room, senderId }) => {
-  const [receiver, setReceiver] = useState()
-  const dispatch = useDispatch()
+const Conversation = ({ room, senderId }: ConversationProps) => {
+  const [receiver, setReceiver] = useState<RoomMember>()
+  const dispatch = useAppDispatch()
 
   const receiverId = useMemo(() => {
     return room?.member.find(m => m !== senderId)
@@ -50,7 +59,7 @@ const Conversation = ({ room, senderId }) => {
   useEffect(() => {
     const loadUserProfile = async () => {
       try {
-        const user = await axiosClient.get(`/user/${receiverId}`)
+        const user = await axiosClient.get<RoomMember>(`/user/${receiverId}`)
         setReceiver(user)
       } catch (error) {
         console.log(error)

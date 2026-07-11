@@ -9,12 +9,22 @@ export interface RoomMember {
 
 export interface RoomInfo {
   id: string
+  member?: string[]
   [key: string]: unknown
 }
 
 export interface SelectedRoom {
   info: RoomInfo
   receiver: RoomMember
+}
+
+export interface ChatMessage {
+  id?: string
+  content?: string
+  userId?: string
+  conversationId?: string
+  createAt?: string
+  [key: string]: unknown
 }
 
 export interface ConversationState {
@@ -34,7 +44,7 @@ export interface ConversationState {
   getAllRoomConversation: {
     isFetching: boolean
     error: boolean
-    rooms: unknown[]
+    rooms: RoomInfo[]
   }
   roomFloatSelect: {
     rooms: SelectedRoom[]
@@ -110,7 +120,7 @@ const conversationSlice = createSlice({
       state.getAllRoomConversation.isFetching = true
     },
 
-    getAllRoomConversationSuccess: (state, action: PayloadAction<unknown[]>) => {
+    getAllRoomConversationSuccess: (state, action: PayloadAction<RoomInfo[]>) => {
       state.getAllRoomConversation.isFetching = false
       state.getAllRoomConversation.rooms = action.payload
       state.getAllRoomConversation.error = false

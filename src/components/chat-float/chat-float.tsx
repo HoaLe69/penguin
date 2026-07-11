@@ -1,10 +1,10 @@
 import { Box } from '@chakra-ui/react'
 import ChatFloatRoom from './chat-float-room'
-import { useSelector } from 'react-redux'
+import { useAppSelector } from '../../redux/hooks'
 import { memo } from 'react'
 
-const ChatFloat = () => {
-  const rooms = useSelector(state => state.room.roomFloatSelect.rooms)
+function ChatFloat() {
+  const rooms = useAppSelector(state => state.room.roomFloatSelect.rooms)
 
   return (
     <Box position="fixed" display={{ base: 'none', lg: 'flex' }} gap={5} bottom={0} right={10}>
