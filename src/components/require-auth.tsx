@@ -1,12 +1,16 @@
-import { useEffect } from 'react'
+import { ReactNode, useEffect } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
 import { verifyUser } from '../redux/api-request/user'
-import { useDispatch, useSelector } from 'react-redux'
+import { useAppDispatch, useAppSelector } from '../redux/hooks'
 import ChatFloat from './chat-float/chat-float'
 
-const RequireAuthentication = ({ children }) => {
-  const dispatch = useDispatch()
-  const isAuthenticated = useSelector(state => state.auth.authState.isAuthenticated)
+interface RequireAuthenticationProps {
+  children: ReactNode
+}
+
+function RequireAuthentication({ children }: RequireAuthenticationProps) {
+  const dispatch = useAppDispatch()
+  const isAuthenticated = useAppSelector(state => state.auth.authState.isAuthenticated)
   const { pathname } = useLocation()
 
   useEffect(() => {
