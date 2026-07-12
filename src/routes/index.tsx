@@ -1,3 +1,4 @@
+import { ReactNode } from 'react'
 import route from '@config/route'
 import Home from '@pages/home'
 import Profile from '@pages/profile'
@@ -8,7 +9,12 @@ import FollowingPage from '../pages/following'
 import NewsPage from '../pages/news'
 import LoginHandler from '../pages/auth/login-handler'
 
-export const routesPrivate = [
+export interface Route {
+  path: string
+  component: ReactNode
+}
+
+export const routesPrivate: Route[] = [
   {
     path: route.home,
     component: <Home />
@@ -31,7 +37,7 @@ export const routesPrivate = [
   }
 ]
 
-export const routesPublic = [
+export const routesPublic: Route[] = [
   {
     path: '/login/redirect/google',
     component: <LoginHandler />

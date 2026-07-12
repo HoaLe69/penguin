@@ -6,9 +6,11 @@ import RequireAuthentication from './components/require-auth'
 import PageNotFound from './pages/not-found'
 import { GoogleOAuthProvider } from '@react-oauth/google'
 
-function App() {
+function App(): JSX.Element {
+  const clientId = process.env.REACT_APP_GOOGLE_CLIENT_KEY || ''
+
   return (
-    <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_KEY}>
+    <GoogleOAuthProvider clientId={clientId}>
       <Box className="App">
         <Routes>
           {routesPublic?.map(route => {
