@@ -31,7 +31,7 @@ function ProfilePostItem(props: PostWithLike) {
   const handleLeaveEmojiPost = useCallback(async () => {
     if (!userLogin?.id) return
     try {
-      await reactPost(postInfo.id, userLogin.id)
+      await reactPost(postInfo.id)
       if (isUserLoginLikeThisPost) {
         setPostReactionList(pre => (pre ? pre.filter(l => l !== userLogin.id) : []))
         return

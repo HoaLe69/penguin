@@ -23,8 +23,6 @@ import {
 } from '../postSlice'
 import axiosClient from '../../config/axios'
 
-const baseUrl = process.env.REACT_APP_API_URL
-
 // Paginated list response - only `content` is consumed by callers today.
 export interface PaginatedPostResponse {
   content: Post[]
@@ -85,7 +83,7 @@ export const deletePost = async (dispatch: Dispatch, id: string, cloudId: string
 export const getAllPostUser = async (dispatch: Dispatch, id: string): Promise<void> => {
   dispatch(getPostUserStart())
   try {
-    const res = await axiosClient.get<Post[]>(`${baseUrl}/post/all-post-user/${id}`)
+    const res = await axiosClient.get<Post[]>(`/post/all-post-user/${id}`)
     dispatch(getPostUserSuccess(res))
   } catch (err) {
     console.log(err)
@@ -106,8 +104,8 @@ export const getPostById = async (dispatch: Dispatch, id: string): Promise<void>
 }
 
 // react post
-export const reactPost = async (postId: string, userId: string): Promise<Post> => {
-  const res = await axiosClient.patch<Post>(`/post/react/${postId}/${userId}`)
+export const reactPost = async (postId: string): Promise<Post> => {
+  const res = await axiosClient.patch<Post>(`/post/react/${postId}`)
   return res
 }
 
@@ -117,7 +115,7 @@ export const reactPost = async (postId: string, userId: string): Promise<Post> =
 export const getAllPostFromUserFollowing = async (dispatch: Dispatch, listIdUser: string[]): Promise<void> => {
   dispatch(getAllPostUserStart())
   try {
-    const res = await axiosClient.post<Post[]>(`${baseUrl}/post/all-post-user-following`, { list: listIdUser })
+    const res = await axiosClient.post<Post[]>(`/post/all-post-user-following`, { list: listIdUser })
     dispatch(getAllPostUserSuccess(res))
   } catch (err) {
     console.log(err)
