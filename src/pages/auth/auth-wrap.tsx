@@ -1,6 +1,7 @@
 import images from '../../assets'
 import { Box, Image, keyframes } from '@chakra-ui/react'
 import { motion } from 'framer-motion'
+import { ReactNode } from 'react'
 
 export const animationKeyFrames = keyframes`
   0% { transform : translateY(50px) ; opacity : 0;}
@@ -8,7 +9,11 @@ export const animationKeyFrames = keyframes`
 `
 const animation = `${animationKeyFrames} 1s ease `
 
-const AuthWrap = ({ children }) => {
+interface AuthWrapProps {
+  children: ReactNode
+}
+
+const AuthWrap: React.FC<AuthWrapProps> = ({ children }) => {
   return (
     <Box display="flex" alignItems="center" justifyContent="center" height="100vh" overflow="hidden" gap="40px">
       <Box display={{ base: 'none', lg: 'block' }}>

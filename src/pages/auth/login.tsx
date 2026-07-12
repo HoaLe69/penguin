@@ -16,11 +16,8 @@ import AuthWrap from './auth-wrap'
 import styled from '@emotion/styled'
 import { Link as ReactRouterLink, useNavigate } from 'react-router-dom'
 import { useFormik } from 'formik'
-import { login } from '@redux/api-request/auth'
-import { useDispatch, useSelector } from 'react-redux'
-import { useCallback } from 'react'
-import GoogleIcon from '../../components/icons/GoogleIcon'
-import { useGoogleLogin } from '@react-oauth/google'
+import { login, LoginPayload } from '@redux/api-request/auth'
+import { useAppDispatch, useAppSelector } from '@redux/hooks'
 import GoogleButtonLogin from '../../components/google-login-button'
 
 const FormStyled = styled.form`
@@ -28,12 +25,14 @@ const FormStyled = styled.form`
   padding: 0 20px;
 `
 
-const Login = () => {
+type LoginFormValues = LoginPayload
+
+const Login: React.FC = () => {
   const navigate = useNavigate()
-  const dispatch = useDispatch()
-  const isLoadingLogin = useSelector(state => state.auth.loginState.isFetching)
-  const message = useSelector(state => state.auth.loginState.message)
-  const formik = useFormik({
+  const dispatch = useAppDispatch()
+  const isLoadingLogin = useAppSelector(state => state.auth.loginState.isFetching)
+  const message = useAppSelector(state => state.auth.loginState.message)
+  const formik = useFormik<LoginFormValues>({
     initialValues: {
       userName: '',
       password: ''

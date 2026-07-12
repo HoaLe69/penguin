@@ -1,25 +1,11 @@
 import AuthWrap from './auth-wrap'
-import {
-  Box,
-  Input,
-  FormControl,
-  Link,
-  FormLabel,
-  VStack,
-  Button,
-  Text,
-  Heading,
-  FormErrorMessage,
-  useColorModeValue,
-  Alert,
-  AlertIcon
-} from '@chakra-ui/react'
+import { Box, Link, Text, Heading, useColorModeValue } from '@chakra-ui/react'
 import { Link as ReactRouterLink, useNavigate } from 'react-router-dom'
 import styled from '@emotion/styled'
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
-import { useDispatch, useSelector } from 'react-redux'
-import { register } from '@redux/api-request/auth'
+import { useAppDispatch, useAppSelector } from '@redux/hooks'
+import { register, RegisterPayload } from '@redux/api-request/auth'
 import GoogleButtonLogin from '../../components/google-login-button'
 
 const FormStyled = styled.form`
@@ -27,12 +13,24 @@ const FormStyled = styled.form`
   padding: 0 20px;
 `
 
-const Register = () => {
-  const dispatch = useDispatch()
+const validationSchema = Yup.object({
+  userName: Yup.string().max(20, 'Maximum 20 characters').min(6, 'Minimum 6 characters').required('Required'),
+  email: Yup.string()
+    .max(50, 'Maximum 50 character')
+    .required('Required')
+    .matches(/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/, 'Please enter valid email address'),
+  password: Yup.string()
+    .required('Required')
+    .min(6, 'Minimun 6 characters')
+    .matches(/(?=.*\d)(?=.*[a-zA-Z]).*/, 'Include least one letter, one number')
+})
+
+type RegisterFormValues = RegisterPayload
+
+const Register: React.FC = () => {
+  const dispatch = useAppDispatch()
   const navigate = useNavigate()
-  const isLoadingRegister = useSelector(state => state.auth.register.isFetching)
-  const message = useSelector(state => state.auth.register.message)
-  const formik = useFormik({
+  const formik = useFormik<RegisterFormValues>({
     initialValues: {
       userName: '',
       email: '',
@@ -41,20 +39,9 @@ const Register = () => {
     onSubmit: formData => {
       register(dispatch, navigate, formData)
     },
-    validationSchema: Yup.object({
-      userName: Yup.string().max(20, 'Maximum 20 characters').min(6, 'Minimum 6 characters').required('Required'),
-      email: Yup.string()
-        .max(50, 'Maximum 50 character')
-        .required('Required')
-        .matches(/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/, 'Please enter valid email address'),
-      password: Yup.string()
-        .required('Required')
-        .min(6, 'Minimun 6 characters')
-        .matches(/(?=.*\d)(?=.*[a-zA-Z]).*/, 'Include least one letter, one number')
-    })
+    validationSchema
   })
   const textColor = useColorModeValue('blackAlpha.600', 'whiteAlpha.300')
-  const inputColor = useColorModeValue('whiteAlpha.900', 'whiteAlpha.300')
   const textActiveColor = useColorModeValue('blue.500', 'pink.400')
   return (
     <AuthWrap>
