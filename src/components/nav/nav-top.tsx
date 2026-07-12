@@ -11,7 +11,8 @@ import {
   Spinner,
   Avatar,
   Heading,
-  HStack
+  HStack,
+  BoxProps
 } from '@chakra-ui/react'
 import NavWrap from './nav-wrap'
 import Logo from './logo'
@@ -20,18 +21,30 @@ import { Link as ReactRouterLink } from 'react-router-dom'
 import NavMenuPc from './nav-menu-items-pc'
 import route from '@config/route'
 import { BiSearchAlt } from 'react-icons/bi'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState, ChangeEvent } from 'react'
 import useDebounce from '../../hooks/useDebounce'
 import { IoMdClose } from 'react-icons/io'
 import axiosClient from '../../config/axios'
-import { useSelector } from 'react-redux'
+import { useAppSelector } from '@redux/hooks'
 import useClickOutside from '../../hooks/useClickOutside'
 import { refreshEvents } from '../../hooks/useRefreshable'
 import { useLocation } from 'react-router-dom'
 import { GoSearch } from 'react-icons/go'
+import { User } from '@redux/authSlice'
 
-const PopResult = ({ result, isOpen, handleClosePopResult, userLoginId }) => {
-  const refContainer = useRef(null)
+interface SearchResult extends User {
+  [key: string]: unknown
+}
+
+interface PopResultProps {
+  result: SearchResult[]
+  isOpen: boolean
+  handleClosePopResult: () => void
+  userLoginId?: string
+}
+
+const PopResult = ({ result, isOpen, handleClosePopResult, userLoginId }: PopResultProps) => {
+  const refContainer = useRef<HTMLDivElement>(null)
   const bgHover = useColorModeValue('blackAlpha.200', 'whiteAlpha.300')
   const users = result.filter(user => user.id !== userLoginId) || []
 
@@ -50,7 +63,14 @@ const PopResult = ({ result, isOpen, handleClosePopResult, userLoginId }) => {
     >
       <Box display="flex" alignItems="center">
         <Heading fontSize="16px">Result</Heading>
-        <IconButton onClick={handleClosePopResult} ml="auto" icon={<IoMdClose />} size="sm" rounded="full" />
+        <IconButton
+          onClick={handleClosePopResult}
+          ml="auto"
+          icon={<IoMdClose />}
+          size="sm"
+          rounded="full"
+          aria-label="close"
+        />
       </Box>
       {users?.length === 0 ? (
         <Box p={1}>No search result</Box>
@@ -69,7 +89,7 @@ const PopResult = ({ result, isOpen, handleClosePopResult, userLoginId }) => {
                     backgroundColor: bgHover
                   }}
                 >
-                  <Avatar src={user?.avatar} alt={user?.displayName} size="sm" />
+                  <Avatar src={user?.avatar} name={user?.displayName} size="sm" />
                   <Heading fontSize="13px">{user?.displayName}</Heading>
                 </Flex>
               </Link>
@@ -81,18 +101,22 @@ const PopResult = ({ result, isOpen, handleClosePopResult, userLoginId }) => {
   )
 }
 
-const NavTop = ({ isFixed }) => {
+interface NavTopProps {
+  isFixed?: boolean
+}
+
+const NavTop = ({ isFixed }: NavTopProps) => {
   const [visibleSearchOnMobileScreen, setVisibleSearchOnMobileScreen] = useState(false)
   const [search, setSearchValue] = useState('')
   const [loading, setLoading] = useState(false)
   const [refreshing, setRefreshsing] = useState(false)
-  const [result, setResult] = useState([])
+  const [result, setResult] = useState<SearchResult[]>([])
   const [visibleResult, setVisibleResult] = useState(false)
   const debounceValue = useDebounce(search)
-  const userLogin = useSelector(state => state.auth.authState.user)
+  const userLogin = useAppSelector(state => state.auth.authState.user)
   const { pathname } = useLocation()
 
-  const refInputContainer = useRef(null)
+  const refInputContainer = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (!debounceValue.trim()) {
@@ -105,7 +129,7 @@ const NavTop = ({ isFixed }) => {
         setLoading(true)
         const res = await axiosClient.get(`/user/search?email=${debounceValue}`)
         if (res) {
-          setResult(res)
+          setResult(res as SearchResult[])
           setVisibleResult(true)
         }
       } catch (err) {
@@ -118,7 +142,7 @@ const NavTop = ({ isFixed }) => {
     getSearchResult()
   }, [debounceValue])
 
-  const handleOnChange = e => {
+  const handleOnChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchValue(e.target.value)
   }
 
@@ -130,7 +154,7 @@ const NavTop = ({ isFixed }) => {
     setRefreshsing(false)
 
     refreshEvents.emit('refresh:posts')
-  }, [])
+  }, [pathname])
 
   const handlePressSearch = useCallback(() => {
     setVisibleSearchOnMobileScreen(true)
@@ -204,6 +228,7 @@ const NavTop = ({ isFixed }) => {
             isRound={true}
             icon={<GoSearch />}
             bg={useColorModeValue('whiteAlpha.500', 'whiteAlpha.200')}
+            aria-label="search"
           />
           <Link as={ReactRouterLink} to={route.chat}>
             <IconButton
@@ -212,6 +237,7 @@ const NavTop = ({ isFixed }) => {
               ml={2}
               icon={<AiOutlineMessage />}
               bg={useColorModeValue('whiteAlpha.500', 'whiteAlpha.200')}
+              aria-label="chat"
             />
           </Link>
         </Box>

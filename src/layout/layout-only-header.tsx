@@ -9,7 +9,7 @@ interface LayoutOnlyHeaderProps {
 function LayoutOnlyHeader({ children }: LayoutOnlyHeaderProps) {
   return (
     <Box>
-      <NavTop isFixed={undefined} />
+      <NavTop isFixed={true} />
       <Container maxW="container.lg">{children}</Container>
       asdjklhajksd
     </Box>
