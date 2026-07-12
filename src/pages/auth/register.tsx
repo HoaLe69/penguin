@@ -4,7 +4,7 @@ import { Link as ReactRouterLink, useNavigate } from 'react-router-dom'
 import styled from '@emotion/styled'
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
-import { useAppDispatch, useAppSelector } from '@redux/hooks'
+import { useAppDispatch } from '@redux/hooks'
 import { register, RegisterPayload } from '@redux/api-request/auth'
 import GoogleButtonLogin from '../../components/google-login-button'
 

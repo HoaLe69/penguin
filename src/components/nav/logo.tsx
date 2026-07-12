@@ -2,7 +2,6 @@ import { Link as ReactRouterLink } from 'react-router-dom'
 import { Text, Link, useColorModeValue, LinkProps } from '@chakra-ui/react'
 import styled from '@emotion/styled'
 import { AiOutlineQq } from 'react-icons/ai'
-import { ReactNode } from 'react'
 
 const LogoBox = styled.span`
   font-weight: bold;
