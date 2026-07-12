@@ -11,12 +11,11 @@ import {
   Spinner,
   Avatar,
   Heading,
-  HStack,
-  BoxProps
+  HStack
 } from '@chakra-ui/react'
 import NavWrap from './nav-wrap'
 import Logo from './logo'
-import { AiOutlineHeart, AiOutlineMessage } from 'react-icons/ai'
+import { AiOutlineMessage } from 'react-icons/ai'
 import { Link as ReactRouterLink } from 'react-router-dom'
 import NavMenuPc from './nav-menu-items-pc'
 import route from '@config/route'

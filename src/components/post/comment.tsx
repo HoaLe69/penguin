@@ -25,7 +25,6 @@ import formatTime from '../../util/timeago'
 import { getAllComment } from '../../redux/api-request/comment'
 import { useToast } from '@chakra-ui/react'
 import { useInView } from 'react-intersection-observer'
-import { getAmountCommentCurrPost } from '../../redux/commentSlice'
 import { RootState } from '../../redux/store'
 import { Comment as CommentType } from '../../redux/commentSlice'
 

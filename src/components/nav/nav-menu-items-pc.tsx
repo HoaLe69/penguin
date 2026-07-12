@@ -11,7 +11,7 @@ import {
   MenuGroup,
   MenuItem
 } from '@chakra-ui/react'
-import { AiFillHeart, AiFillMessage } from 'react-icons/ai'
+import { AiFillMessage } from 'react-icons/ai'
 import { BsPatchPlusFill } from 'react-icons/bs'
 import CreatePostModal from '../modals/create'
 import ToggleThemeButton from '../theme-toggle-btn'
@@ -23,7 +23,6 @@ import ListConversation from '../chat-float/room-float'
 import axiosClient from '../../config/axios'
 import { useAppSelector } from '@redux/hooks'
 import { ReactNode } from 'react'
-import { User } from '@redux/authSlice'
 
 interface MenuItemPcProps {
   icon: ReactNode
