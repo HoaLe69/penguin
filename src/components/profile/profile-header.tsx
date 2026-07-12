@@ -62,11 +62,13 @@ function ProfileHeader(props: ProfileHeaderProps) {
   }, [dispatch, userProfileId])
 
   const handleFollowOtherUser = async () => {
-    followOtherUser(dispatch, userProfileId, userLogin?.id)
+    if (userLogin?.id) {
+      followOtherUser(dispatch, userProfileId, userLogin.id)
+    }
   }
   const relation = () => {
-    const isInFollowingList = userProfile?.following.includes(userLogin?.id)
-    const isInFollowerList = userProfile?.follower.includes(userLogin?.id)
+    const isInFollowingList = userProfile?.following.includes(userLogin?.id as string)
+    const isInFollowerList = userProfile?.follower?.includes(userLogin?.id as string)
     if (isInFollowingList && isInFollowerList) return 'Following'
     if (isInFollowerList && !isInFollowingList) return 'Following'
     if (!isInFollowerList && isInFollowingList) return 'Follow back'
@@ -113,7 +115,7 @@ function ProfileHeader(props: ProfileHeaderProps) {
                   <Button px={4} onClick={handleFollowOtherUser} colorScheme="teal" isLoading={isLoadingFollow} mr={2}>
                     {relation()}
                   </Button>
-                  <GotoChatButton receiver={userProfile} member={[userLogin?.id, userProfile?.id]} />
+                  {userLogin?.id && userProfile?.id && <GotoChatButton receiver={userProfile as any} member={[userLogin.id, userProfile.id]} />}
                 </Box>
               )}
             </HStack>

@@ -25,24 +25,25 @@ function ProfilePostItem(props: PostWithLike) {
   }, [])
 
   const isUserLoginLikeThisPost = useMemo(() => {
-    return postReactionList?.includes(userLogin?.id)
-  }, [postReactionList.length])
+    return postReactionList?.includes(userLogin?.id as string)
+  }, [postReactionList?.length, userLogin?.id])
 
   const handleLeaveEmojiPost = useCallback(async () => {
+    if (!userLogin?.id) return
     try {
-      await reactPost(postInfo.id, userLogin?.id)
+      await reactPost(postInfo.id, userLogin.id)
       if (isUserLoginLikeThisPost) {
-        setPostReactionList(pre => pre.filter(l => l !== userLogin?.id))
+        setPostReactionList(pre => (pre ? pre.filter(l => l !== userLogin.id) : []))
         return
       }
-      setPostReactionList(pre => [...pre, userLogin?.id])
+      setPostReactionList(pre => (pre ? [...pre, userLogin.id] : [userLogin.id]))
     } catch (error) {
       // run toast message here
       console.log(error)
       toast({
         title: 'Post',
         position: 'bottom-left',
-        description: error.response.data || 'Something went wrong',
+        description: (error as any)?.response?.data || 'Something went wrong',
         status: 'info',
         duration: 1500,
         isClosable: true

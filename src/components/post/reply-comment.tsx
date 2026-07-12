@@ -116,7 +116,7 @@ function ReplyComment({
           </Menu>
         )}
         <Text fontSize="12px" color={createColor}>
-          {formatTime(reply?.createAt)}
+          {reply?.createAt ? formatTime(reply.createAt) : ''}
         </Text>
       </HStack>
     </Box>

@@ -26,11 +26,11 @@ function PostContainer() {
     try {
       setLoading(true)
       const response = await getAllPost(page)
-      if (!response.length) {
+      if (!response?.length) {
         setHasMore(false)
         return
       }
-      setPosts(pre => [...pre, ...response])
+      setPosts(pre => [...pre, ...(response || [])])
       setPage(pre => pre + 1)
     } catch (error) {
       console.log(error)

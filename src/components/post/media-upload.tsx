@@ -83,7 +83,7 @@ function MediaUpload({ isEditMode, uploadState, onUploadState }: MediaUploadProp
       <VStack
         width="100%"
         spacing={4}
-        p={!isEditMode && 6}
+        p={!isEditMode ? 6 : 0}
         bg={useColorModeValue('whiteAlpha.700', 'whiteAlpha.200')}
         borderRadius="lg"
         boxShadow="md"

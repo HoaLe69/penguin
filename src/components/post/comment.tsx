@@ -80,7 +80,7 @@ const CommentItem = memo(function CommentItemMemo({ ownerPostId, comment, onDele
             </Menu>
           )}
           <Text fontSize="12px" color={useColorModeValue('blackAlpha.800', 'whiteAlpha.700')}>
-            {formatTime(comment?.createAt)}
+            {comment?.createAt ? formatTime(comment.createAt) : ''}
           </Text>
         </Box>
       </HStack>
@@ -119,7 +119,7 @@ function Comment({ postId, ownerPostId, handleGetAmountOfComment }: CommentProps
           })
         } else {
           if (body.comment) {
-            setComments(pre => [body.comment, ...pre])
+            setComments(pre => [body.comment as CommentType & { userId?: string; displayName?: string; avatar?: string; createAt?: string }, ...pre])
           }
         }
         if (typeof handleGetAmountOfComment === 'function') {
@@ -144,16 +144,16 @@ function Comment({ postId, ownerPostId, handleGetAmountOfComment }: CommentProps
   const dispatch = useDispatch()
 
   const loadCommentHistory = useCallback(async () => {
-    if (loading || !hasMore) return
+    if (loading || !hasMore || !postId) return
     try {
       setLoading(true)
       const response = await getAllComment(dispatch, postId, page)
-      if (!response.content.length) {
+      if (!response?.content?.length) {
         setHasMore(false)
         return
       }
       setComments(pre => {
-        return [...pre, ...response.content]
+        return [...pre, ...(response?.content || [])]
       })
       setPage(pre => pre + 1)
     } catch (err) {

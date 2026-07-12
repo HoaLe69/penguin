@@ -42,18 +42,20 @@ const CoversItem = ({ senderId, room, onPressMobile }: CoversItemProps) => {
 
   const handleSelectRoom = useCallback(() => {
     if (typeof onPressMobile === 'function') onPressMobile()
-    const payload = {
-      info: room,
-      receiver
+    if (receiver) {
+      const payload = {
+        info: room,
+        receiver
+      }
+      dispatch(getCurrentSelectedRoom(payload))
     }
-    dispatch(getCurrentSelectedRoom(payload))
   }, [receiver, room, onPressMobile, dispatch])
 
   return (
     <Flex
       onClick={handleSelectRoom}
       gap={'10px'}
-      bg={room?.id === selectedRoom?.id && bgColor}
+      bg={room?.id === selectedRoom?.id ? bgColor : undefined}
       p={2}
       rounded="10px"
       align="center"

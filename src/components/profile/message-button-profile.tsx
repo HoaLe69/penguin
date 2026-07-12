@@ -25,11 +25,11 @@ function GotoChatButton(props: GotoChatButtonProps) {
       if (senderId && receiveId) {
         setLoading(true)
         const room = await axiosClient.get<RoomInfo | null>(`/conversation/find/${senderId}/${receiveId}`)
-        if (room?.id) {
-          dispatch(getCurrentSelectedRoom({ info: room, receiver }))
-        } else {
+        if (room?.id && receiver) {
+          dispatch(getCurrentSelectedRoom({ info: room, receiver: receiver as any }))
+        } else if (receiver) {
           const res = await axiosClient.post<RoomInfo>(`/conversation/create`, { member: member })
-          dispatch(getCurrentSelectedRoom({ info: res, receiver }))
+          dispatch(getCurrentSelectedRoom({ info: res, receiver: receiver as any }))
         }
         navigate('/chat')
       } else {
