@@ -37,7 +37,7 @@ const NewCard = forwardRef<HTMLDivElement, NewCardProps>(({ infor }, ref: Forwar
                 {infor?.source_name}
               </Text>
               <Text textAlign="right" color={useColorModeValue('blackAlpha.600', 'whiteAlpha.500')}>
-                {formatTime(infor?.pubDate)}
+                {infor?.pubDate ? formatTime(infor.pubDate) : ''}
               </Text>
             </Box>
           </HStack>

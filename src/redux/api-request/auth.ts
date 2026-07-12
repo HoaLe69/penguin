@@ -71,6 +71,6 @@ export const register = async (
     dispatch(registerSuccess())
   } catch (err) {
     console.log(err)
-    dispatch(registerFailed(getErrorMessage(err)))
+    dispatch(registerFailed(getErrorMessage(err) || 'Có lỗi khi đăng ký'))
   }
 }

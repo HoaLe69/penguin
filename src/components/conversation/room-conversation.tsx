@@ -104,7 +104,7 @@ const RoomConversation = ({ onPressMobileBackToChatList }: RoomConversationProps
                     <Message
                       roomId={selectedRoom?.id}
                       key={message?.id || index}
-                      receiver={receiver}
+                      receiver={receiver ?? undefined}
                       avatar={receiver?.avatar}
                       {...message}
                     />

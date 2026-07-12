@@ -187,7 +187,7 @@ const NavTop = ({ isFixed }: NavTopProps) => {
         <Spinner color="teal.500" />
       </Box>
       <Flex justify="space-between">
-        <Logo onClick={handleRefreshPost} display={{ base: visibleSearchOnMobileScreen && 'none', lg: 'block' }} />
+        <Logo onClick={handleRefreshPost} display={{ base: visibleSearchOnMobileScreen ? 'none' : 'block', lg: 'block' }} />
         <HStack flex={1} justifyContent="center" px="2">
           <InputGroup
             ref={refInputContainer}

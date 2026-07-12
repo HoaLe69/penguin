@@ -53,7 +53,7 @@ const Conversation = ({ room, senderId }: ConversationProps) => {
   const dispatch = useAppDispatch()
 
   const receiverId = useMemo(() => {
-    return room?.member.find(m => m !== senderId)
+    return room?.member?.find(m => m !== senderId)
   }, [room])
 
   useEffect(() => {
@@ -71,8 +71,10 @@ const Conversation = ({ room, senderId }: ConversationProps) => {
   }, [receiverId])
 
   const handleSelectRoom = useCallback(() => {
-    dispatch(chooseRoomFloat({ info: room, receiver }))
-  }, [receiver])
+    if (receiver) {
+      dispatch(chooseRoomFloat({ info: room, receiver }))
+    }
+  }, [receiver, dispatch, room])
   return (
     <Flex
       onClick={handleSelectRoom}

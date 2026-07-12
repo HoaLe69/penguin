@@ -39,9 +39,9 @@ function EditProfileModal(props: EditProfileModalProps) {
       about: ''
     },
     onSubmit: async data => {
-      if (!data.about.trim()) return
+      if (!data.about.trim() || !userLogin?.id) return
       const updateInfo = {
-        id: userLogin?.id,
+        id: userLogin.id,
         ...data
       }
       await updateUser(dispatch, updateInfo)

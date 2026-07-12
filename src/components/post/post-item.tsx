@@ -76,6 +76,7 @@ function Post({
 
   return (
     <Box mb={4} bg={isModal ? 'none' : bgPost} rounded="10px">
+      <>
       <HStack as="header" p={2} display="flex">
         <Link
           as={ReactRouterLink}
@@ -127,7 +128,7 @@ function Post({
         </Text>
       </Box>
       <Box pb={2} pl={2} textAlign="left">
-        {tag && <Badge colorScheme="red">{tag as string}</Badge>}
+        {tag ? <Badge colorScheme="red">{String(tag)}</Badge> : null}
       </Box>
       {videoSrc && (
         <Box minH="400px" maxH="600px" width="100%" borderRadius="md" overflow="hidden">
@@ -216,6 +217,7 @@ function Post({
           </Flex>
         </Box>
       </Flex>
+      </>
     </Box>
   )
 }
