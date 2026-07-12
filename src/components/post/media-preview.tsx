@@ -1,16 +1,21 @@
 import { useEffect, useRef } from 'react'
 import { Box, Image } from '@chakra-ui/react'
 
-const MediaPreview = ({ file, type }) => {
-  const videoRef = useRef(null)
-  const imageRef = useRef(null)
+interface MediaPreviewProps {
+  file: File
+  type: 'video' | 'image' | null
+}
+
+function MediaPreview({ file, type }: MediaPreviewProps) {
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const imageRef = useRef<HTMLImageElement>(null)
 
   useEffect(() => {
     const objectUrl = URL.createObjectURL(file)
 
-    if (type == 'video' && videoRef.current) {
+    if (type === 'video' && videoRef.current) {
       videoRef.current.src = objectUrl
-    } else if (type == 'image' && imageRef.current) {
+    } else if (type === 'image' && imageRef.current) {
       imageRef.current.src = objectUrl
     }
     return () => {
@@ -18,18 +23,10 @@ const MediaPreview = ({ file, type }) => {
     }
   }, [file, type])
 
-  if (type == 'video') {
-    if (type == 'video')
-      return (
-        <Box width="100%" borderRadius="md" overflow="hidden">
-          <video ref={videoRef} width="100%" controls playsInline preload="metadata" />
-        </Box>
-      )
+  if (type === 'video') {
     return (
       <Box width="100%" borderRadius="md" overflow="hidden">
-        <video ref={videoRef} width="100%" controls playsInline preload="metadata">
-          Your browser does support the video tag
-        </video>
+        <video ref={videoRef} width="100%" controls playsInline preload="metadata" />
       </Box>
     )
   }

@@ -3,7 +3,17 @@ import { Box, Button, Icon, Text, Flex, Container, VStack, useToast, useColorMod
 import UploadIcon from '../icons/Upload'
 import MediaPreview from './media-preview'
 
-const isValidMediaFile = file => {
+interface UploadState {
+  file: File | null
+  type: 'video' | 'image' | null
+}
+
+interface MediaValidationResult {
+  isValid: boolean
+  type: 'video' | 'image' | null
+}
+
+const isValidMediaFile = (file: File): MediaValidationResult => {
   const validVideoTypes = ['video/mp4', 'video/webm', 'video/ogg']
 
   const validImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
@@ -19,19 +29,24 @@ const isValidMediaFile = file => {
   return { isValid: false, type: null }
 }
 
-const MediaUpload = ({ isEditMode, uploadState, onUploadState }) => {
+interface MediaUploadProps {
+  isEditMode?: boolean
+  uploadState: UploadState
+  onUploadState: (state: UploadState) => void
+}
+
+function MediaUpload({ isEditMode, uploadState, onUploadState }: MediaUploadProps) {
   const [isDragging, setIsDragging] = useState(false)
-  // const [uploadState, setUploadState] = useState({ file: null, type: null })
   const toast = useToast()
 
-  const handleDrop = useCallback(e => {
+  const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault()
     setIsDragging(false)
     const droppedFile = e.dataTransfer.files[0]
     handleFileSelection(droppedFile)
   }, [])
 
-  const handleFileSelection = useCallback(selectedFile => {
+  const handleFileSelection = useCallback((selectedFile: File) => {
     const { isValid, type } = isValidMediaFile(selectedFile)
 
     if (!isValid) {
@@ -89,7 +104,7 @@ const MediaUpload = ({ isEditMode, uploadState, onUploadState }) => {
               transition="all 0.2s"
               borderColor={'gray.400'}
               _hover={{ opacity: '60%' }}
-              onDragOver={e => {
+              onDragOver={(e: React.DragEvent<HTMLDivElement>) => {
                 e.preventDefault()
                 setIsDragging(true)
               }}
@@ -99,7 +114,7 @@ const MediaUpload = ({ isEditMode, uploadState, onUploadState }) => {
               onDrop={handleDrop}
               onClick={() => document.getElementById('file-input')?.click()}
             >
-              <Icon as={UploadIcon} w={12} h={12} md={4} color="blue.500" textAlign="center" />
+              <Icon as={UploadIcon} w={12} h={12} color="blue.500" textAlign="center" />
               <Text fontSize="lg" fontWeight="medium" mb={2}>
                 Drag and drop your file here
               </Text>
@@ -115,8 +130,8 @@ const MediaUpload = ({ isEditMode, uploadState, onUploadState }) => {
                 type="file"
                 hidden
                 accept="image/*,video/*"
-                onChange={e => {
-                  const selectedFile = e.target?.files[0]
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  const selectedFile = e.target?.files?.[0]
                   if (selectedFile) {
                     handleFileSelection(selectedFile)
                   }
@@ -127,14 +142,14 @@ const MediaUpload = ({ isEditMode, uploadState, onUploadState }) => {
         ) : (
           <VStack width="100%" spacing={4}>
             <Flex justify="space-between" align="center" width="100%">
-              <Text fontWeight="medium">{uploadState.file.name}</Text>
+              <Text fontWeight="medium">{uploadState.file?.name}</Text>
               <Button size="sm" variant="ghost" onClick={clearFile}>
                 ✕
               </Button>
             </Flex>
 
             <Box width="100%">
-              <MediaPreview file={uploadState.file} type={uploadState.type} />
+              {uploadState.file && <MediaPreview file={uploadState.file} type={uploadState.type} />}
             </Box>
           </VStack>
         )}
