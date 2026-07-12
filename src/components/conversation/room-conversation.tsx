@@ -8,22 +8,42 @@ import { useStompClient } from '../../hooks/useWebSocket'
 import { useEffect, useRef, useState, useCallback } from 'react'
 import InputRoomChat from './input-mess'
 import axiosClient from '../../config/axios'
+import { ChatMessage } from '../../redux/conversationSlice'
+import { RootState } from '../../redux/store'
 
-const RoomConversation = ({ onPressMobileBackToChatList }) => {
-  const [messages, setMessages] = useState([])
+interface RoomConversationProps {
+  onPressMobileBackToChatList?: () => void
+}
+
+// STOMP topic payload envelope: the server publishes the actual chat message
+// under a `body` key (matches existing runtime behavior, unchanged here).
+interface IncomingChatMessageEvent {
+  body: ChatMessage
+}
+
+const RoomConversation = ({ onPressMobileBackToChatList }: RoomConversationProps) => {
+  const [messages, setMessages] = useState<ChatMessage[]>([])
   const [loading, setLoading] = useState(false)
-  const refDiv = useRef(null)
+  const refDiv = useRef<HTMLDivElement>(null)
 
-  const selectedRoom = useSelector(state => state.room.selectedRoom.info)
-  const receiver = useSelector(state => state.room.selectedRoom.receiver)
+  const selectedRoom = useSelector((state: RootState) => state.room.selectedRoom.info)
+  const receiver = useSelector((state: RootState) => state.room.selectedRoom.receiver)
 
-  const handleIncomingMessage = useCallback(message => {
+  const handleIncomingMessage = useCallback((message: IncomingChatMessageEvent) => {
     setMessages(pre => [...pre, message.body])
   }, [])
 
-  const { sendMessage } = useStompClient('/topic/messages', selectedRoom?.id, handleIncomingMessage)
+  const { sendMessage } = useStompClient<IncomingChatMessageEvent>(
+    '/topic/messages',
+    selectedRoom?.id,
+    handleIncomingMessage
+  )
 
   const bgHeader = useColorModeValue('#ffffff40', '#20202380')
+
+  // COLOR_THEME.BORDER is a hook that other still-untyped call sites across the app
+  // also pass unwrapped - preserved as-is to avoid an unrelated behavior change; cast silences stricter TS.
+  const borderColor = COLOR_THEME.BORDER as unknown as string
 
   useEffect(() => {
     if (refDiv.current) refDiv.current.scrollTop = refDiv.current.scrollHeight
@@ -33,7 +53,7 @@ const RoomConversation = ({ onPressMobileBackToChatList }) => {
     const loadMessageHistory = async () => {
       setLoading(true)
       try {
-        const res = await axiosClient.get(`/message/all/${selectedRoom?.id}`)
+        const res = await axiosClient.get<ChatMessage[]>(`/message/all/${selectedRoom?.id}`)
         setMessages(res)
       } catch (err) {
         console.log(err)
@@ -42,7 +62,7 @@ const RoomConversation = ({ onPressMobileBackToChatList }) => {
       }
     }
     if (selectedRoom?.id) loadMessageHistory()
-  }, [selectedRoom])
+  }, [selectedRoom?.id])
 
   return (
     <>
@@ -53,7 +73,7 @@ const RoomConversation = ({ onPressMobileBackToChatList }) => {
             gap="10px"
             align="center"
             borderBottomWidth={1}
-            borderColor={COLOR_THEME.BORDER}
+            borderColor={borderColor}
             py={2}
             css={{ backdropFilter: 'blur(10px)' }}
             bg={bgHeader}
@@ -63,14 +83,14 @@ const RoomConversation = ({ onPressMobileBackToChatList }) => {
                 <AiOutlineLeft />
               </Box>
             </Box>
-            <Avatar ml={2} src={receiver?.avatar} size="sm" alt={receiver?.displayName} />
+            <Avatar ml={2} src={receiver?.avatar} size="sm" name={receiver?.displayName} />
             <Heading as="h3" fontSize="16px">
               {receiver?.displayName}
             </Heading>
           </Flex>
           <Box flex="1" display="flex" flexDir="column" overflowY="auto" overflowX="hidden" p={2} ref={refDiv}>
             <Box display="flex" flexDir="column" alignItems="center" mb={20}>
-              <Avatar src={receiver?.avatar} size="xl" alt={receiver?.displayName} />
+              <Avatar src={receiver?.avatar} size="xl" name={receiver?.displayName} />
               <Text color="gray.500">Let chat with {receiver?.displayName}</Text>
             </Box>
             <Box pb={12}>
@@ -83,7 +103,7 @@ const RoomConversation = ({ onPressMobileBackToChatList }) => {
                   return (
                     <Message
                       roomId={selectedRoom?.id}
-                      key={index}
+                      key={message?.id || index}
                       receiver={receiver}
                       avatar={receiver?.avatar}
                       {...message}

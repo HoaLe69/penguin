@@ -4,12 +4,19 @@ import { FaRegSmile } from 'react-icons/fa'
 import { useCallback, useRef, useState } from 'react'
 import { EmojiKeyboard } from 'reactjs-emoji-keyboard'
 import { useSelector } from 'react-redux'
+import { RootState } from '../../redux/store'
+import { ChatMessage } from '../../redux/conversationSlice'
 
-const InputRoomChat = ({ roomId, sendMessage }) => {
+interface InputRoomChatProps {
+  roomId?: string
+  sendMessage: <M = ChatMessage>(destination: string, message: M) => void
+}
+
+const InputRoomChat = ({ roomId, sendMessage }: InputRoomChatProps) => {
   const [content, setContent] = useState('')
-  const inputRef = useRef(null)
+  const inputRef = useRef<HTMLInputElement>(null)
   const [showEmoji, setShowEmoji] = useState(false)
-  const userLogin = useSelector(state => state.auth.authState.user)
+  const userLogin = useSelector((state: RootState) => state.auth.authState.user)
 
   const handleSendMessage = useCallback(() => {
     if (!content.trim() || !roomId) return
@@ -20,17 +27,20 @@ const InputRoomChat = ({ roomId, sendMessage }) => {
     }
     sendMessage(`/app/messages/${roomId}`, message)
     setContent('')
-    inputRef?.current.focus()
-  }, [content])
-  const handleKeydown = e => {
+    inputRef?.current?.focus()
+  }, [content, roomId, userLogin?.id, sendMessage])
+
+  const handleKeydown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') handleSendMessage()
   }
 
-  const handleHideEmojiKeyboard = e => {
-    if (e.target.closest('.emoji')) setShowEmoji(true)
+  const handleHideEmojiKeyboard = (e: React.MouseEvent<HTMLDivElement>) => {
+    if ((e.target as HTMLElement).closest('.emoji')) setShowEmoji(true)
     else setShowEmoji(false)
   }
+
   const bgInput = useColorModeValue('whiteAlpha.700', 'whiteAlpha.100')
+
   return (
     <Box p={3} onClick={handleHideEmojiKeyboard}>
       <Box py={2} display="flex" alignItems="center" bg={bgInput} px={2} rounded="25px">
@@ -43,7 +53,7 @@ const InputRoomChat = ({ roomId, sendMessage }) => {
               theme={useColorModeValue('light', 'dark')}
               searchLabel="Procurar emoji"
               searchDisabled={false}
-              onEmojiSelect={emoji => setContent(pre => pre + emoji.character)}
+              onEmojiSelect={(emoji: { character: string }) => setContent(pre => pre + emoji.character)}
               categoryDisabled={false}
             />
           </Box>

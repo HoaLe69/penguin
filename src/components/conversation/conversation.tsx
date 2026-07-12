@@ -4,21 +4,28 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { getAllRoomConversation } from '@redux/api-request/room'
 import axiosClient from '../../config/axios'
-import { getCurrentSelectedRoom } from '../../redux/conversationSlice'
+import { getCurrentSelectedRoom, RoomInfo, RoomMember } from '../../redux/conversationSlice'
 import EmptyState from '../empty-state'
+import { RootState } from '../../redux/store'
 
-const CoversItem = ({ senderId, room, onPressMobile }) => {
-  const [receiver, setReceiver] = useState()
-  const selectedRoom = useSelector(state => state.room.selectedRoom.info)
+interface CoversItemProps {
+  senderId?: string
+  room: RoomInfo
+  onPressMobile?: () => void
+}
+
+const CoversItem = ({ senderId, room, onPressMobile }: CoversItemProps) => {
+  const [receiver, setReceiver] = useState<RoomMember | undefined>()
+  const selectedRoom = useSelector((state: RootState) => state.room.selectedRoom.info)
 
   const receiverId = useMemo(() => {
-    return room?.member.find(m => m !== senderId)
-  }, [room])
+    return room?.member?.find(m => m !== senderId)
+  }, [room, senderId])
 
   useEffect(() => {
     const loadUserProfile = async () => {
       try {
-        const user = await axiosClient.get(`/user/${receiverId}`)
+        const user = await axiosClient.get<RoomMember>(`/user/${receiverId}`)
         setReceiver(user)
       } catch (error) {
         console.log(error)
@@ -32,7 +39,6 @@ const CoversItem = ({ senderId, room, onPressMobile }) => {
   const dispatch = useDispatch()
 
   const bgColor = useColorModeValue('blackAlpha.200', 'whiteAlpha.300')
-  //  const textColor = useColorModeValue('gray.500', 'whiteAlpha.600')
 
   const handleSelectRoom = useCallback(() => {
     if (typeof onPressMobile === 'function') onPressMobile()
@@ -41,7 +47,8 @@ const CoversItem = ({ senderId, room, onPressMobile }) => {
       receiver
     }
     dispatch(getCurrentSelectedRoom(payload))
-  }, [receiver])
+  }, [receiver, room, onPressMobile, dispatch])
+
   return (
     <Flex
       onClick={handleSelectRoom}
@@ -64,16 +71,23 @@ const CoversItem = ({ senderId, room, onPressMobile }) => {
     </Flex>
   )
 }
-const Converstation = ({ onPressMobile }) => {
+
+interface ConversationProps {
+  onPressMobile?: () => void
+}
+
+const Converstation = ({ onPressMobile }: ConversationProps) => {
   const dispatch = useDispatch()
-  const userLogin = useSelector(state => state.auth.authState.user)
-  const rooms = useSelector(state => state.room.getAllRoomConversation.rooms)
-  const isFetching = useSelector(state => state.room.getAllRoomConversation.isFetching)
+  const userLogin = useSelector((state: RootState) => state.auth.authState.user)
+  const rooms = useSelector((state: RootState) => state.room.getAllRoomConversation.rooms)
+  const isFetching = useSelector((state: RootState) => state.room.getAllRoomConversation.isFetching)
+
   useEffect(() => {
     if (userLogin?.id) {
       getAllRoomConversation(dispatch, userLogin?.id)
     }
-  }, [userLogin?.id])
+  }, [userLogin?.id, dispatch])
+
   return (
     <WrapContent title="Message">
       {isFetching ? (

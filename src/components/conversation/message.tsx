@@ -14,8 +14,15 @@ import formatTime from '../../util/timeago'
 import { BsThreeDots } from 'react-icons/bs'
 import { useSelector } from 'react-redux'
 import { memo } from 'react'
+import { ChatMessage, RoomMember } from '../../redux/conversationSlice'
+import { RootState } from '../../redux/store'
 
-const WrapMessage = ({ children, isMyMess }) => {
+interface WrapMessageProps {
+  children: React.ReactNode
+  isMyMess: boolean
+}
+
+const WrapMessage = ({ children, isMyMess }: WrapMessageProps) => {
   return (
     <Box>
       {!isMyMess ? (
@@ -31,17 +38,25 @@ const WrapMessage = ({ children, isMyMess }) => {
   )
 }
 
-const Message = ({ isFloat, receiver, ...message }) => {
-  const userLogin = useSelector(state => state.auth.authState.user)
+interface MessageProps extends ChatMessage {
+  isFloat?: boolean
+  receiver?: RoomMember
+  roomId?: string
+  avatar?: string
+}
+
+const Message = ({ isFloat, receiver, ...message }: MessageProps) => {
+  const userLogin = useSelector((state: RootState) => state.auth.authState.user)
   const handleRecallMessage = async () => {}
 
   const inactive = useColorModeValue('whiteAlpha.500', 'whiteAlpha.200')
   const isMyMess = userLogin?.id === message?.userId
   const colorRecall = useColorModeValue('blackAlpha.700', 'whiteAlpha.500')
+
   return (
     <WrapMessage isMyMess={isMyMess}>
       <Box display="flex" gap="5px" maxW={isFloat ? '70%' : '60%'}>
-        {!isMyMess && <Avatar src={receiver?.avatar} alt={receiver?.displayName} size="sm" />}
+        {!isMyMess && <Avatar src={receiver?.avatar} name={receiver?.displayName} size="sm" />}
         <Box display="flex" flexDir="column" alignItems={isMyMess ? 'flex-end' : 'flex-start'}>
           <Box
             position="relative"
@@ -59,13 +74,13 @@ const Message = ({ isFloat, receiver, ...message }) => {
               backgroundColor: 'transparent'
             }}
           >
-            {message?.content?.length > 0 ? (
+            {message?.content && message.content.length > 0 ? (
               <Box bg={isMyMess ? 'grassTeal' : inactive} p={1} px={2} borderRadius="10px" maxW="max-content">
                 <Text fontSize="16px">{message?.content}</Text>
               </Box>
             ) : (
               <Box fontSize="16px" p={2} border="1px" rounded="25px" color={colorRecall}>
-                Tin nhắn đã được thu hồi
+                Tin nhắn đã được thu hồi
               </Box>
             )}
             <Box
@@ -73,7 +88,9 @@ const Message = ({ isFloat, receiver, ...message }) => {
               left={!isMyMess ? '104%' : 'unset'}
               position="absolute"
               top="0"
-              display={message?.content?.length > 0 && message?.userId === userLogin?.id ? 'flex' : 'none'}
+              display={
+                message?.content && message.content.length > 0 && message?.userId === userLogin?.id ? 'flex' : 'none'
+              }
               alignItems="center"
               gap="5px"
             >
@@ -88,7 +105,7 @@ const Message = ({ isFloat, receiver, ...message }) => {
                   size="sm"
                 />
                 <MenuList>
-                  <MenuItem onClick={handleRecallMessage}>Thu hồi tin nhắn</MenuItem>
+                  <MenuItem onClick={handleRecallMessage}>Thu hồi tin nhắn</MenuItem>
                 </MenuList>
               </Menu>
             </Box>
