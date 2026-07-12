@@ -2,25 +2,47 @@ import { Box, Heading, Button, Textarea, Input, FormLabel, useColorModeValue, Av
 import { useCallback, useEffect, useState } from 'react'
 import { createPost } from '@redux/api-request/posts'
 import { useDispatch, useSelector } from 'react-redux'
+import { RootState } from '../../redux/store'
 import { useNavigate } from 'react-router-dom'
 import { EmojiKeyboard } from 'reactjs-emoji-keyboard'
 import { FaRegSmile } from 'react-icons/fa'
 import { editPost } from '../../redux/api-request/posts'
+import { Post as PostType } from '../../redux/postSlice'
 import MediaUpload from './media-upload'
 
-const MakePost = ({ postDataEditMode }) => {
+interface UploadState {
+  file: File | null
+  type: 'video' | 'image' | null
+}
+
+interface MakePostProps {
+  postDataEditMode?: PostType
+}
+
+interface FormDataState {
+  thumbnail: null
+  formData: {
+    userId?: string
+    photoUrl?: string
+    description: string
+    displayName?: string
+    tag: string
+    fileType?: 'video' | 'image' | null
+  }
+}
+
+function MakePost({ postDataEditMode }: MakePostProps) {
   const toast = useToast()
   const dispatch = useDispatch()
   const navigate = useNavigate()
-  const isLoading = useSelector(state => state.post.createPost.isFetching)
-  const isLoadingEdit = useSelector(state => state.post.editPost.isFetching)
-  // const [previewSource, setPreviewSource] = useState(postDataEditMode?.thumbnail || undefined)
-  const userLogin = useSelector(state => state.auth.authState.user)
+  const isLoading = useSelector((state: RootState) => state.post.createPost.isFetching)
+  const isLoadingEdit = useSelector((state: RootState) => state.post.editPost.isFetching)
+  const userLogin = useSelector((state: RootState) => state.auth.authState.user)
   const [err, setErr] = useState('')
   const [showEmoji, setShowEmoji] = useState(false)
-  const [uploadState, setUploadState] = useState({ file: null, type: null })
+  const [uploadState, setUploadState] = useState<UploadState>({ file: null, type: null })
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormDataState>({
     thumbnail: null,
     formData: {
       userId: userLogin?.id,
@@ -30,6 +52,7 @@ const MakePost = ({ postDataEditMode }) => {
       tag: postDataEditMode?.tag || ''
     }
   })
+
   useEffect(() => {
     if (err) {
       toast({
@@ -43,13 +66,9 @@ const MakePost = ({ postDataEditMode }) => {
       setErr('')
     }
   }, [err])
-  const handleOnChange = e => {
-    let { name, value } = e.target
-    // if (name === 'image') {
-    //   const file = e.target.files[0]
-    //   setFormData(pre => ({ ...pre, thumbnail: file }))
-    //   previewImage(file)
-    // } else
+
+  const handleOnChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target
     if (name === 'tag') {
       setFormData(pre => ({
         ...pre,
@@ -62,17 +81,11 @@ const MakePost = ({ postDataEditMode }) => {
       }))
     }
   }
-  // const previewImage = file => {
-  //   const reader = new FileReader()
-  //   reader.readAsDataURL(file)
-  //   reader.onloadend = function () {
-  //     setPreviewSource(reader.result)
-  //   }
-  // }
 
-  const handleUploadFileState = useCallback(data => {
+  const handleUploadFileState = useCallback((data: UploadState) => {
     setUploadState(data)
   }, [])
+
   const handleSubmit = () => {
     try {
       if (!uploadState.file && formData.formData.description && !postDataEditMode) {
@@ -88,11 +101,15 @@ const MakePost = ({ postDataEditMode }) => {
       const blob = new Blob([JSON.stringify(formData.formData)], {
         type: 'application/json'
       })
-      form.append('file', uploadState.file)
+      if (uploadState.file) {
+        form.append('file', uploadState.file)
+      }
       form.append('formData', blob)
       if (postDataEditMode) {
-        editPost(dispatch, form, postDataEditMode?.id, postDataEditMode?.cloudinaryId, userLogin?.accessToken)
-      } else createPost(dispatch, navigate, form, userLogin?.accessToken)
+        editPost(dispatch, form, postDataEditMode?.id as string, postDataEditMode?.cloudinaryId as string)
+      } else {
+        createPost(dispatch, navigate, form)
+      }
     } catch (error) {
       console.log(error)
       toast({
@@ -105,10 +122,12 @@ const MakePost = ({ postDataEditMode }) => {
       })
     }
   }
-  const handleHideEmojiKeyboard = e => {
-    if (e.target.closest('.emoji')) setShowEmoji(true)
+
+  const handleHideEmojiKeyboard = (e: React.MouseEvent<HTMLDivElement>) => {
+    if ((e.target as HTMLElement).closest('.emoji')) setShowEmoji(true)
     else setShowEmoji(false)
   }
+
   return (
     <Box pb={2} pt={2} onClick={handleHideEmojiKeyboard}>
       <Box>
@@ -149,28 +168,8 @@ const MakePost = ({ postDataEditMode }) => {
             </Box>
           </Box>
         </Box>
-        <MediaUpload isEditMode={postDataEditMode} uploadState={uploadState} onUploadState={handleUploadFileState} />
+        <MediaUpload isEditMode={!!postDataEditMode} uploadState={uploadState} onUploadState={handleUploadFileState} />
 
-        {/* <FormLabel */}
-        {/*   mt={2} */}
-        {/*   htmlFor="input-file" */}
-        {/*   display="inline-flex" */}
-        {/*   alignItems="center" */}
-        {/*   gap="5px" */}
-        {/*   p={2} */}
-        {/*   bg="teal" */}
-        {/*   borderRadius="10px" */}
-        {/*   cursor="pointer" */}
-        {/*   color={useColorModeValue('whiteAlpha.900', 'gray.900')} */}
-        {/* > */}
-        {/*   {postDataEditMode ? 'Change' : 'Upload'} */}
-        {/*   <MdOutlineCloudUpload /> */}
-        {/*   <Input id="input-file" type="file" accept="image/*" name="image" display="none" onChange={handleOnChange} /> */}
-        {/* </FormLabel> */}
-        {/* <Box display="flex" justifyContent="center"> */}
-        {/*   <Image src={previewSource} boxSize="xs" objectFit="cover" /> */}
-        {/* </Box> */}
-        {/**/}
         <FormLabel>
           HasTag
           <Input

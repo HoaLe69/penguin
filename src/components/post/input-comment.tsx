@@ -3,11 +3,18 @@ import { useCallback, useRef, useState } from 'react'
 import { BsFillSendFill } from 'react-icons/bs'
 import { FaRegSmile } from 'react-icons/fa'
 import { useSelector } from 'react-redux'
+import { RootState } from '../../redux/store'
 import { EmojiKeyboard } from 'reactjs-emoji-keyboard'
 
-const InputComment = ({ postId, sendMessage, isRoot }) => {
-  const refInput = useRef()
-  const userLogin = useSelector(state => state.auth.authState.user)
+interface InputCommentProps {
+  postId: string | undefined
+  sendMessage: (destination: string, message: unknown) => void
+  isRoot?: boolean
+}
+
+function InputComment({ postId, sendMessage, isRoot }: InputCommentProps) {
+  const refInput = useRef<HTMLInputElement>(null)
+  const userLogin = useSelector((state: RootState) => state.auth.authState.user)
   const [commentValue, setCommentValue] = useState('')
   const [showEmoji, setShowEmoji] = useState(false)
 
@@ -22,35 +29,25 @@ const InputComment = ({ postId, sendMessage, isRoot }) => {
       content: commentValue,
       level: isRoot ? 'root' : 'child'
     }
-    // if (reply) {
-    //   message.root = reply.root
-    //   message.replyTo = reply.to
-    // }
     sendMessage(`/app/comments/${postId}`, message)
     setCommentValue('')
     setTimeout(() => {
       const inputEl = refInput.current
       if (inputEl) inputEl.focus()
     }, 0)
-  }, [commentValue])
+  }, [commentValue, postId, userLogin, sendMessage, isRoot])
 
-  const handleKeydown = e => {
+  const handleKeydown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') handleSendMessage()
   }
 
-  const handleHideEmojiKeyboard = e => {
-    if (e.target.closest('.emoji')) setShowEmoji(true)
+  const handleHideEmojiKeyboard = (e: React.MouseEvent<HTMLDivElement>) => {
+    if ((e.target as HTMLElement).closest('.emoji')) setShowEmoji(true)
     else setShowEmoji(false)
   }
+
   return (
     <InputGroup position="relative" display="flex" alignItems="center" onClick={handleHideEmojiKeyboard} px={2}>
-      {/* {reply && ( */}
-      {/*   <Box> */}
-      {/*     <Badge variant="solid" colorScheme="teal"> */}
-      {/*       {reply?.displayName} */}
-      {/*     </Badge> */}
-      {/*   </Box> */}
-      {/* )} */}
       <Input
         flex="1"
         ref={refInput}
@@ -59,7 +56,6 @@ const InputComment = ({ postId, sendMessage, isRoot }) => {
         variant="flushed"
         focusBorderColor="grassTeal"
         placeholder="Enter your comment..."
-        //        placeholder={reply?.displayName ? `reply to ${reply?.displayName}` : 'Enter you comment..'}
         name="comment"
         value={commentValue}
         onChange={e => setCommentValue(e.target.value)}

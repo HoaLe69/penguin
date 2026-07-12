@@ -3,22 +3,23 @@ import { useDispatch, useSelector } from 'react-redux'
 import { memo, useCallback, useEffect, useState } from 'react'
 import { useInView } from 'react-intersection-observer'
 import { createPostCleanOldState, deletePostCleanOldState, editPostCleanOldState } from '../../redux/postSlice'
+import { RootState } from '../../redux/store'
 import { getAllPost } from '../../redux/api-request/posts'
 import useRefreshable from '../../hooks/useRefreshable'
 import { PostSkeletonLoading } from '../loading'
 import PostItemWrapper from './post-item-wrapper'
 
-const PostContainer = () => {
+function PostContainer() {
   const [loading, setLoading] = useState(false)
   const [hasMore, setHasMore] = useState(true)
-  const [posts, setPosts] = useState([])
+  const [posts, setPosts] = useState<any[]>([])
   const [page, setPage] = useState(0)
   const dispatch = useDispatch()
   const { ref, inView } = useInView()
 
-  const postDeletedId = useSelector(state => state.post.deletePost.id)
-  const postEdited = useSelector(state => state.post.editPost.post)
-  const postCreated = useSelector(state => state.post.createPost.post)
+  const postDeletedId = useSelector((state: RootState) => state.post.deletePost.id)
+  const postEdited = useSelector((state: RootState) => state.post.editPost.post)
+  const postCreated = useSelector((state: RootState) => state.post.createPost.post)
 
   const fetchPost = useCallback(async () => {
     if (loading || !hasMore) return
@@ -36,21 +37,23 @@ const PostContainer = () => {
     } finally {
       setLoading(false)
     }
-  }, [page, hasMore])
+  }, [page, hasMore, loading])
 
   useEffect(() => {
     if (inView) {
       fetchPost()
     }
-  }, [inView])
+  }, [inView, fetchPost])
+
   const handleRefreshPost = useCallback(async () => {
-    //todo
     setPosts([])
     setPage(0)
     setHasMore(true)
     await fetchPost()
-  }, [])
+  }, [fetchPost])
+
   useRefreshable('posts', handleRefreshPost)
+
   // remove post
   useEffect(() => {
     if (!postDeletedId) return
@@ -61,7 +64,8 @@ const PostContainer = () => {
     return () => {
       if (postDeletedId) dispatch(deletePostCleanOldState())
     }
-  }, [postDeletedId])
+  }, [postDeletedId, dispatch])
+
   // edit post
   useEffect(() => {
     if (!postEdited) return
@@ -75,19 +79,18 @@ const PostContainer = () => {
       return changed
     })
     return () => {
-      //todo
       if (postEdited) dispatch(editPostCleanOldState())
     }
-  }, [postEdited])
+  }, [postEdited, dispatch])
+
   // new post
   useEffect(() => {
     if (!postCreated) return
     setPosts(pre => [postCreated, ...pre])
     return () => {
-      //todo
       if (postCreated) dispatch(createPostCleanOldState())
     }
-  }, [postCreated])
+  }, [postCreated, dispatch])
 
   return (
     <Box pt={4}>
@@ -96,7 +99,6 @@ const PostContainer = () => {
       })}
       <Box pt={2} ref={ref} display="flex" flexDir="column" justifyContent="center">
         {loading && <PostSkeletonLoading />}
-        {/* {loading && <BeatLoader color="white" />} */}
       </Box>
       {!hasMore && (
         <HStack justifyContent="center">

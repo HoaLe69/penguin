@@ -4,30 +4,51 @@ import MenuPost from '../menu-post'
 import { AiOutlineHeart, AiFillHeart, AiOutlineMessage } from 'react-icons/ai'
 import { useDispatch, useSelector } from 'react-redux'
 import { useState, useRef, useEffect, useCallback } from 'react'
+import { RootState } from '../../redux/store'
+import { Post as PostType } from '../../redux/postSlice'
 import formatTime from '../../util/timeago'
 import { deletePost } from '../../redux/api-request/posts'
 
-const Post = props => {
-  const {
-    isModal,
-    activeReactButton,
-    amountOfComment,
-    handleShowPostModal,
-    handleReactPost,
-    postReactionList,
-    ...postInfo
-  } = props
-  const userLogin = useSelector(state => state.auth.authState.user)
+interface PostItemProps extends Omit<PostType, 'id'> {
+  id?: string
+  isModal?: boolean
+  isDetail?: boolean
+  activeReactButton?: boolean
+  amountOfComment?: number | unknown[]
+  handleShowPostModal?: () => void
+  handleReactPost?: () => void
+  postReactionList?: string[]
+}
+
+function Post({
+  id,
+  isModal,
+  isDetail,
+  activeReactButton,
+  amountOfComment,
+  handleShowPostModal,
+  handleReactPost,
+  postReactionList,
+  userId,
+  photoUrl,
+  displayName,
+  description,
+  tag,
+  cloudinaryId,
+  fileType,
+  videoSrc,
+  thumbnail,
+  createAt,
+  comments,
+  ...restProps
+}: PostItemProps) {
+  const userLogin = useSelector((state: RootState) => state.auth.authState.user)
   const [numberOfLines, setNumberOfLines] = useState(0)
-  // paragraph ref
-  const pRef = useRef()
-  //  const { isOpen, onClose, onOpen } = useDisclosure()
+  const pRef = useRef<HTMLDivElement>(null)
   const dispatch = useDispatch()
 
   const colorReact = useColorModeValue('#1a202c', '#ffffff')
   const bgPost = useColorModeValue('whiteAlpha.700', 'whiteAlpha.200')
-
-  //  const amountOfComment = useSelector(state => state.comment.amountCommentCurrPost)
 
   useEffect(() => {
     if (pRef.current) {
@@ -39,47 +60,59 @@ const Post = props => {
   }, [])
 
   const displayPostReaction = useCallback(() => {
-    return postReactionList?.length
+    return postReactionList?.length || 0
   }, [postReactionList])
 
   const handleReadMorePost = () => {
-    handleShowPostModal()
+    handleShowPostModal?.()
   }
 
   const handleDeletePost = useCallback(() => {
-    deletePost(dispatch, postInfo.id, postInfo.cloudinaryId, postInfo.fileType)
-  }, [])
+    deletePost(dispatch, id as string, cloudinaryId as string, fileType as string)
+  }, [id, cloudinaryId, fileType, dispatch])
+
+  const commentCount =
+    typeof amountOfComment === 'number' ? amountOfComment : (comments as unknown[] | undefined)?.length || 0
 
   return (
     <Box mb={4} bg={isModal ? 'none' : bgPost} rounded="10px">
       <HStack as="header" p={2} display="flex">
         <Link
           as={ReactRouterLink}
-          to={`/profile/${postInfo.userId}`}
+          to={`/profile/${userId as string}`}
           _hover={{ textDecoration: 'none' }}
           display="flex"
           alignItems="center"
           gap="5px"
         >
-          <Avatar src={postInfo.photoUrl} size="md" />
+          <Avatar src={photoUrl as string} size="md" />
           <Box>
             <Heading as="h3" fontSize="15px">
-              {postInfo.displayName}
+              {displayName as string}
             </Heading>
             <Text fontSize="12px" textAlign={'left'} color={useColorModeValue('blackAlpha.600', 'whiteAlpha.500')}>
-              {formatTime(postInfo.createAt)}
+              {formatTime(createAt as string)}
             </Text>
           </Box>
         </Link>
-        {postInfo.userId === userLogin?.id && (
+        {userId === userLogin?.id && (
           <Box ml="auto">
-            <MenuPost onDelete={handleDeletePost} postInfo={postInfo} />
+            <MenuPost
+              onDelete={handleDeletePost}
+              postInfo={{
+                id: id as string,
+                userId: userId as string,
+                cloudinaryId: cloudinaryId as string,
+                fileType: fileType as string,
+                ...restProps
+              }}
+            />
           </Box>
         )}
       </HStack>
       <Box pl={2}>
-        <Text ref={pRef} textAlign="left" noOfLines={numberOfLines >= 3 && !isModal ? '3' : 'none'}>
-          {postInfo.description}
+        <Text ref={pRef} textAlign="left" noOfLines={numberOfLines >= 3 && !isModal ? 3 : undefined}>
+          {description as string}
         </Text>
       </Box>
       <Box display={numberOfLines >= 3 && !isModal ? 'block' : 'none'} textAlign="left" pl={2}>
@@ -94,13 +127,13 @@ const Post = props => {
         </Text>
       </Box>
       <Box pb={2} pl={2} textAlign="left">
-        {postInfo?.tag && <Badge colorScheme="red">{postInfo.tag}</Badge>}
+        {tag && <Badge colorScheme="red">{tag as string}</Badge>}
       </Box>
-      {postInfo.videoSrc && (
+      {videoSrc && (
         <Box minH="400px" maxH="600px" width="100%" borderRadius="md" overflow="hidden">
           <video
             style={{ height: '600px' }}
-            src={postInfo.videoSrc}
+            src={videoSrc as string}
             width="100%"
             controls
             playsInline
@@ -110,15 +143,15 @@ const Post = props => {
           </video>
         </Box>
       )}
-      {postInfo?.thumbnail && (
+      {thumbnail && (
         <Box overflow={'hidden'}>
           <Image
             loading="lazy"
             minH="400px"
             maxH="600px"
             w="full"
-            src={postInfo.thumbnail}
-            alt={postInfo.displayName}
+            src={thumbnail as string}
+            alt={displayName as string}
             objectFit={'cover'}
           />
         </Box>
@@ -137,7 +170,7 @@ const Post = props => {
           <Text lineHeight={1}>{displayPostReaction()}</Text>
         </Box>
         <Box>
-          <Text>{amountOfComment || postInfo.comments} comments</Text>
+          <Text>{commentCount} comments</Text>
         </Box>
       </Flex>
       <Flex
@@ -165,9 +198,8 @@ const Post = props => {
           </Box>
           Like
         </Flex>
-        <Box flex={1} pointerEvents={isModal && 'none'} onClick={handleShowPostModal}>
+        <Box flex={1} pointerEvents={isModal ? 'none' : 'auto'} onClick={handleShowPostModal}>
           <Flex
-            //onClick={onOpen}
             cursor="pointer"
             py={1}
             rounded="5px"

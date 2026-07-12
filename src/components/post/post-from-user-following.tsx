@@ -3,18 +3,24 @@ import { BeatLoader } from 'react-spinners'
 import { useDispatch, useSelector } from 'react-redux'
 import { useEffect } from 'react'
 import { getAllPostFromUserFollowing } from '@redux/api-request/posts'
+import { RootState } from '../../redux/store'
 import EmptyState from '../empty-state'
 import PostItemWrapper from './post-item-wrapper'
 
-const PostFollowing = ({ index }) => {
+interface PostFollowingProps {
+  index?: number
+}
+
+function PostFollowing({ index }: PostFollowingProps) {
   const dispatch = useDispatch()
-  const posts = useSelector(state => state.post.allPostFromUser.posts)
-  const isLoading = useSelector(state => state.post.allPostFromUser.isFetching)
-  const userLogin = useSelector(state => state.auth.authState.user)
+  const posts = useSelector((state: RootState) => state.post.allPostFromUser.posts)
+  const isLoading = useSelector((state: RootState) => state.post.allPostFromUser.isFetching)
+  const userLogin = useSelector((state: RootState) => state.auth.authState.user)
 
   useEffect(() => {
     if (userLogin?.following) getAllPostFromUserFollowing(dispatch, userLogin?.following)
   }, [userLogin?.following?.length, index])
+
   return (
     <Box pt={4}>
       {!isLoading && !posts?.length ? (
