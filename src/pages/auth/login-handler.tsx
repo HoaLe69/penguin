@@ -3,12 +3,11 @@ import { useEffect, useState } from 'react'
 import { useNavigate, Link as ReactRouterLink } from 'react-router-dom'
 import { getUserProfileFromGoogle, authWithSocial } from '../../redux/api-request/auth'
 
-const LoginHandler = () => {
+const LoginHandler: React.FC = () => {
   const navigate = useNavigate()
-  const [error, setError] = useState(false)
+  const [error, setError] = useState<boolean>(false)
 
-  //get google access token from url
-  const extractDataFromURL = key => {
+  const extractDataFromURL = (key: string): string | null => {
     const searchParams = window.location.search
     const urlParams = new URLSearchParams(searchParams)
     return urlParams.get(key)
@@ -21,7 +20,7 @@ const LoginHandler = () => {
       return
     }
 
-    const authenticate = async () => {
+    const authenticate = async (): Promise<void> => {
       try {
         const userInfo = await getUserProfileFromGoogle(code)
         await authWithSocial(userInfo)
