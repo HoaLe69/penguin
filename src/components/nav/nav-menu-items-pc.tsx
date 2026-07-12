@@ -21,11 +21,19 @@ import { CgProfile } from 'react-icons/cg'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import ListConversation from '../chat-float/room-float'
 import axiosClient from '../../config/axios'
-import { useSelector } from 'react-redux'
+import { useAppSelector } from '@redux/hooks'
+import { ReactNode } from 'react'
+import { User } from '@redux/authSlice'
 
-const MenuItemPc = ({ icon, onOpen }) => {
+interface MenuItemPcProps {
+  icon: ReactNode
+  onOpen?: () => void
+}
+
+const MenuItemPc = ({ icon, onOpen }: MenuItemPcProps) => {
+  const bgButton = COLOR_THEME.BG_BUTTON as unknown as string
   return (
-    <Box onClick={onOpen} cursor="pointer" rounded="full" fontSize={'22px'} bg={COLOR_THEME.BG_BUTTON} p={3}>
+    <Box onClick={onOpen} cursor="pointer" rounded="full" fontSize={'22px'} bg={bgButton} p={3}>
       {icon}
     </Box>
   )
@@ -35,7 +43,9 @@ const NavMenuPc = () => {
   const { pathname } = useLocation()
   const navigate = useNavigate()
   const { isOpen, onOpen, onClose } = useDisclosure()
-  const userLogin = useSelector(state => state.auth.authState.user)
+  const userLogin = useAppSelector(state => state.auth.authState.user)
+  const bgColor = COLOR_THEME.BG as unknown as string
+
   const handleLogOut = async () => {
     try {
       await axiosClient.get(`/auth/log-out/${userLogin?.userName}`)
@@ -44,23 +54,27 @@ const NavMenuPc = () => {
       console.log(err)
     }
   }
+
   return (
     <Box display={{ base: 'none', lg: 'flex' }} alignItems="center" gap="10px">
       <Box>
-        <MenuItemPc icon={<BsPatchPlusFill />} title="create" onOpen={onOpen} />
-        <CreatePostModal isOpen={isOpen} onClose={onClose} />
+        <MenuItemPc icon={<BsPatchPlusFill />} onOpen={onOpen} />
+        <CreatePostModal mode="create" isOpen={isOpen} onClose={onClose} />
       </Box>
       <Menu placement="bottom">
-        {({ isOpen }) => (
+        {({ isOpen: menuIsOpen }) => (
           <>
             <Tooltip label="message">
-              <MenuButton display={pathname.includes('/chat') ? 'none' : 'block'} _expanded={{ color: 'grassTeal' }}>
-                <MenuItemPc icon={<AiFillMessage />} title="message" />
+              <MenuButton
+                display={pathname.includes('/chat') ? 'none' : 'block'}
+                sx={{ '&[aria-expanded=true]': { color: 'grassTeal' } }}
+              >
+                <MenuItemPc icon={<AiFillMessage />} />
               </MenuButton>
             </Tooltip>
-            <MenuList bg={COLOR_THEME.BG} width={'md'} maxH="60vh">
+            <MenuList bg={bgColor} width={'md'} maxH="60vh">
               <Box>
-                <ListConversation isOpen={isOpen} />
+                <ListConversation isOpen={menuIsOpen} />
               </Box>
             </MenuList>
           </>

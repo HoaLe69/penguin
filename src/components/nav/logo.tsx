@@ -1,7 +1,8 @@
 import { Link as ReactRouterLink } from 'react-router-dom'
-import { Text, Link, useColorModeValue } from '@chakra-ui/react'
+import { Text, Link, useColorModeValue, LinkProps } from '@chakra-ui/react'
 import styled from '@emotion/styled'
 import { AiOutlineQq } from 'react-icons/ai'
+import { ReactNode } from 'react'
 
 const LogoBox = styled.span`
   font-weight: bold;
@@ -12,7 +13,11 @@ const LogoBox = styled.span`
   line-height: 20px;
 `
 
-const Logo = ({ onClick, ...props }) => {
+interface LogoProps extends Omit<LinkProps, 'children'> {
+  onClick?: () => void
+}
+
+const Logo = ({ onClick, ...props }: LogoProps) => {
   return (
     <Link as={ReactRouterLink} to={'/'} {...props}>
       <LogoBox onClick={onClick}>

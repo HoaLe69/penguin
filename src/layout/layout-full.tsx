@@ -10,7 +10,7 @@ interface LayoutFullProps {
 function LayoutFull({ children }: LayoutFullProps) {
   return (
     <Box overflow="hidden" height="100vh" overflowY="overlay">
-      <NavTop isFixed={undefined} />
+      <NavTop isFixed={false} />
       <Container maxW={'container.sm'} px={0} pt={14} pb={20}>
         {children}
       </Container>
