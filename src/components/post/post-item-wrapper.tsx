@@ -38,7 +38,7 @@ function PostItemWrapper({ like = [], comments = 0, ...postInfo }: PostItemWrapp
       } else {
         setPostReactionList(pre => [...pre, userLogin?.id as string])
       }
-      await reactPost(postInfo.id as string, userLogin?.id as string)
+      await reactPost(postInfo.id as string)
     } catch (error) {
       console.log(error)
       toast({
