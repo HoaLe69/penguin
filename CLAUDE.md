@@ -13,13 +13,45 @@ This is a Create React App project wrapped by `react-app-rewired` (for path alia
 
 There is no lint script configured beyond CRA's built-in ESLint (`eslintConfig` in `package.json` extends `react-app`), which runs automatically during `npm start`/`npm run build`.
 
-## Environment
+## Environment Variables
 
-The app reads config from `.env` (gitignored, not present in repo — create one locally). Required variables, referenced via `process.env`:
+### Local Development Setup
 
-- `REACT_APP_API_URL` — REST API base URL (used by `src/config/axios.ts`)
-- `REACT_APP_SOCKET_URL` — WebSocket/SockJS endpoint (used by `src/hooks/useWebSocket.ts`)
-- `REACT_APP_GOOGLE_CLIENT_KEY` — Google OAuth client ID (used by `GoogleOAuthProvider` in `src/App.tsx`)
+The app reads configuration from `.env` file (gitignored, not present in repo — create one locally):
+
+1. Copy `.env.example` to `.env`:
+   ```bash
+   cp .env.example .env
+   ```
+2. Fill in the required variables with your local development values (see below)
+
+### Environment Validation
+
+All npm commands (`npm start`, `npm build`, `npm test`) run an automatic validation script (`scripts/validate-env.ts`) that checks for required environment variables before execution. If any are missing, the script will exit with an error message and provide instructions on how to set up `.env`.
+
+### Required Variables
+
+- `REACT_APP_API_URL` — REST API base URL (used by `src/config/axios.ts`). Development: `http://localhost:3000`, Production: your deployed API URL
+- `REACT_APP_SOCKET_URL` — WebSocket/SockJS endpoint for real-time chat (used by `src/hooks/useWebSocket.ts`). Development: `ws://localhost:8080`, Production: your deployed WebSocket URL
+- `REACT_APP_GOOGLE_CLIENT_KEY` — Google OAuth client ID (used by `GoogleOAuthProvider` in `src/App.tsx`). Obtain from Google Cloud Console
+
+### Development vs Production
+
+- **Development**: Use `localhost` URLs and your local test credentials. Example `.env`:
+  ```
+  REACT_APP_API_URL=http://localhost:3000
+  REACT_APP_SOCKET_URL=ws://localhost:8080
+  REACT_APP_GOOGLE_CLIENT_KEY=your_test_google_id
+  ```
+- **Production**: Use deployed URLs. These are typically set via GitHub Actions Secrets (see deployment configuration)
+
+### CI/CD & GitHub Actions
+
+In GitHub Actions workflows, environment variables are injected as repository Secrets. Never commit `.env` files (they're in `.gitignore`). Secrets are configured in repository settings and automatically injected during CI/CD runs.
+
+### Available Variables
+
+See `.env.example` for all available environment variables and their documentation.
 
 ## Architecture
 
