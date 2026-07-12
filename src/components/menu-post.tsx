@@ -4,11 +4,19 @@ import { AiFillDelete } from 'react-icons/ai'
 import { useSelector } from 'react-redux'
 import { FaEdit } from 'react-icons/fa'
 import CreatePostModal from './modals/create'
+import React from 'react'
+import type { Post } from '../redux/postSlice'
+import type { RootState } from '../redux/store'
 
-const MenuPost = ({ postInfo, onDelete }) => {
+interface MenuPostProps {
+  postInfo: Post
+  onDelete: () => void
+}
+
+const MenuPost: React.FC<MenuPostProps> = ({ postInfo, onDelete }) => {
   const { isOpen, onClose, onOpen } = useDisclosure()
-  const isLoading = useSelector(state => state.post.deletePost.isFetching)
-  const isLoadingEdit = useSelector(state => state.post.editPost.isFetching)
+  const isLoading = useSelector((state: RootState) => state.post.deletePost.isFetching)
+  const isLoadingEdit = useSelector((state: RootState) => state.post.editPost.isFetching)
 
   return (
     <Menu placement="bottom-end" closeOnSelect={false}>

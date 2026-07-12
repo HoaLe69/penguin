@@ -1,15 +1,20 @@
-import { extendTheme } from '@chakra-ui/react'
+import { extendTheme, type ThemeConfig } from '@chakra-ui/react'
 import { mode } from '@chakra-ui/theme-tools'
 import '@fontsource/m-plus-rounded-1c/300.css'
 import '@fontsource/m-plus-rounded-1c/700.css'
 import { modalTheme } from '@components/theme/modal'
 
-const config = {
+interface StyleProps {
+  colorMode: string
+}
+
+const config: ThemeConfig = {
   initialColorMode: 'system',
   useSystemColorMode: true
 }
+
 const styles = {
-  global: props => ({
+  global: (props: StyleProps) => ({
     body: {
       bg: mode('#f0e7db', '#202023')(props)
     },
@@ -27,12 +32,15 @@ const styles = {
     }
   })
 }
+
 const fonts = {
   heading: `'M PLUS Rounded 1c' , san-serif`
 }
+
 const colors = {
   grassTeal: '#88ccca'
 }
+
 const theme = extendTheme({
   config,
   styles,
