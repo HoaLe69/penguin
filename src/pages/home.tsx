@@ -4,11 +4,11 @@ import CreatePostModal from '@components/modals/create'
 import { memo } from 'react'
 import LayoutTab from '../layout/layout-tab'
 import { useSelector } from 'react-redux'
-import { getAllPost } from '@redux/api-request/posts'
+import type { RootState } from '@redux/store'
 
 const Home = () => {
   const { isOpen, onOpen, onClose } = useDisclosure()
-  const userLogin = useSelector(state => state.auth.authState.user)
+  const userLogin = useSelector((state: RootState) => state.auth.authState.user)
   return (
     <LayoutTab>
       <Box px={0}>
@@ -24,15 +24,15 @@ const Home = () => {
           bg={useColorModeValue('whiteAlpha.700', 'whiteAlpha.200')}
           onClick={onOpen}
         >
-          <Avatar src={userLogin?.avatar} alt={userLogin?.displayName} />
+          <Avatar src={userLogin?.avatar} name={userLogin?.displayName} />
           <Box textAlign={'left'} flex="1" height="40px" rounded="25px" px={4}>
             <Text lineHeight={'40px'} color={useColorModeValue('blackAlpha.700', 'whiteAlpha.700')} noOfLines={1}>
               {userLogin?.displayName} Let share your great moment to everyone !
             </Text>
-            {isOpen && <CreatePostModal isOpen={isOpen} onClose={onClose} />}
+            {isOpen && <CreatePostModal mode="create" isOpen={isOpen} onClose={onClose} />}
           </Box>
         </Box>
-        <PostContainer getPost={getAllPost} />
+        <PostContainer />
       </Box>
     </LayoutTab>
   )

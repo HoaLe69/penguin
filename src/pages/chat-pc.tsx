@@ -1,4 +1,4 @@
-import { Box, useDisclosure, Drawer, DrawerContent, DrawerBody, useColorModeValue } from '@chakra-ui/react'
+import { Box, useDisclosure, Drawer, DrawerContent, DrawerBody, useColorModeValue, BoxProps } from '@chakra-ui/react'
 import LayoutWithoutNav from '../layout/layout-without-nav'
 import { useCallback } from 'react'
 import Converstation from '@components/conversation/conversation'
@@ -17,21 +17,25 @@ const ChatPc = () => {
   )
 }
 
-const ChatSmallScreen = ({ ...props }) => {
+interface ChatSmallScreenProps extends BoxProps {
+  display?: Record<string, string>
+}
+
+const ChatSmallScreen = ({ display, ...props }: ChatSmallScreenProps) => {
   const { isOpen, onOpen, onClose } = useDisclosure()
 
   const onPressMobile = useCallback(() => {
     onOpen()
-  }, [])
+  }, [onOpen])
 
   const onPressMobileBackToChatList = useCallback(() => {
     onClose()
-  }, [])
+  }, [onClose])
 
   const bgChat = useColorModeValue('#f0e7db', '#202023')
 
   return (
-    <LayoutWithoutNav {...props}>
+    <LayoutWithoutNav display={display} {...props}>
       <Converstation onPressMobile={onPressMobile} />
       <Drawer onClose={onClose} isOpen={isOpen} size={'full'}>
         <DrawerContent>
@@ -44,11 +48,15 @@ const ChatSmallScreen = ({ ...props }) => {
   )
 }
 
-const ChatLargeScreen = ({ ...props }) => (
-  <Box display="flex" flexDir="column" justifyContent="flex-end" height="100vh" {...props}>
+interface ChatLargeScreenProps extends BoxProps {
+  display?: Record<string, string>
+}
+
+const ChatLargeScreen = ({ display, ...props }: ChatLargeScreenProps) => (
+  <Box display={display || 'flex'} flexDir="column" justifyContent="flex-end" height="100vh" {...props}>
     <NavTop isFixed={true} />
     <Box display="flex" flex={1} overflow="hidden">
-      <Box borderRightWidth={1} flex={1} borderColor={COLOR_THEME.BORDER}>
+      <Box borderRightWidth={1} flex={1} borderColor={COLOR_THEME.BORDER as unknown as string}>
         <Converstation />
       </Box>
       <Box flex={3}>
