@@ -2,8 +2,9 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { IconButton, useColorMode, useColorModeValue } from '@chakra-ui/react'
 import { FiSun } from 'react-icons/fi'
 import { BiSolidMoon } from 'react-icons/bi'
+import React from 'react'
 
-const ToggleThemeButton = () => {
+const ToggleThemeButton: React.FC = () => {
   const { toggleColorMode } = useColorMode()
   return (
     <AnimatePresence initial={false} mode="wait">
